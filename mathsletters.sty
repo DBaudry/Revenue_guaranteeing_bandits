@@ -1,0 +1,248 @@
+%\NeedsTeXFormat{LaTeX2e}
+% \ProvidesPackage{mathletters}
+%   [2010/08/11 v0.1 package for math notations]
+   
+   
+\newcommand{\bA}{\mathbf{A}}
+\newcommand{\bB}{\mathbf{B}}
+\newcommand{\bC}{\mathbf{C}}
+\newcommand{\bD}{\mathbf{D}}
+\newcommand{\bE}{\mathbb{E}}
+\newcommand{\bF}{\mathbf{F}}
+\newcommand{\bG}{\mathbf{G}}
+\newcommand{\bH}{\mathbf{H}}
+\newcommand{\bI}{\mathbf{I}}
+\newcommand{\bJ}{\mathbf{J}}
+\newcommand{\bK}{\mathbf{K}}
+\newcommand{\bL}{\mathbf{L}}
+\newcommand{\bM}{\mathbf{M}}
+\newcommand{\bN}{\mathbb{N}}
+\newcommand{\bO}{\mathbf{O}}
+\newcommand{\bP}{\mathbb{P}}
+\newcommand{\bQ}{\mathbf{Q}}
+\newcommand{\bR}{\mathbf{R}}
+\newcommand{\bS}{\mathbf{S}}
+\newcommand{\bT}{\mathbf{T}}
+\newcommand{\bU}{\mathbf{U}}
+\newcommand{\bV}{\mathbf{V}}
+\newcommand{\bW}{\mathbf{W}}
+\newcommand{\bX}{\mathbf{X}}
+\newcommand{\bY}{\mathbf{Y}}
+\newcommand{\bZ}{\mathbf{Z}}
+   
+\newcommand{\cA}{\mathcal{A}}
+\newcommand{\cB}{\mathcal{B}}
+\newcommand{\cC}{\mathcal{C}}
+\newcommand{\cD}{\mathcal{D}}
+\newcommand{\cE}{\mathcal{E}}
+\newcommand{\cF}{\mathcal{F}}
+\newcommand{\cG}{\mathcal{G}}
+\newcommand{\cH}{\mathcal{H}}
+\newcommand{\cI}{\mathcal{I}}
+\newcommand{\cJ}{\mathcal{J}}
+\newcommand{\cK}{\mathcal{K}}
+\newcommand{\cL}{\mathcal{L}}
+\newcommand{\cM}{\mathcal{M}}
+\newcommand{\cN}{\mathcal{N}}
+\newcommand{\cO}{\mathcal{O}}
+\newcommand{\cP}{\mathcal{P}}
+\newcommand{\cQ}{\mathcal{Q}}
+\newcommand{\cR}{\mathcal{R}}
+\newcommand{\cS}{\mathcal{S}}
+\newcommand{\cT}{\mathcal{T}}
+\newcommand{\cU}{\mathcal{U}}
+\newcommand{\cV}{\mathcal{V}}
+\newcommand{\cW}{\mathcal{W}}
+\newcommand{\cX}{\mathcal{X}}
+\newcommand{\cY}{\mathcal{Y}}
+\newcommand{\cZ}{\mathcal{Z}}
+
+\newcommand{\kA}{\mathfrak{A}}
+\newcommand{\kB}{\mathfrak{B}}
+\newcommand{\kC}{\mathfrak{C}}
+\newcommand{\kD}{\mathfrak{D}}
+\newcommand{\kE}{\mathfrak{E}}
+\newcommand{\kF}{\mathfrak{F}}
+\newcommand{\kG}{\mathfrak{G}}
+\newcommand{\kH}{\mathfrak{H}}
+\newcommand{\kI}{\mathfrak{I}}
+\newcommand{\kJ}{\mathfrak{J}}
+\newcommand{\kK}{\mathfrak{K}}
+\newcommand{\kL}{\mathfrak{L}}
+\newcommand{\kM}{\mathfrak{M}}
+\newcommand{\kN}{\mathfrak{N}}
+\newcommand{\kO}{\mathfrak{O}}
+\newcommand{\kP}{\mathfrak{P}}
+\newcommand{\kQ}{\mathfrak{Q}}
+\newcommand{\kR}{\mathfrak{R}}
+\newcommand{\kS}{\mathfrak{S}}
+\newcommand{\kT}{\mathfrak{T}}
+\newcommand{\kU}{\mathfrak{U}}
+\newcommand{\kV}{\mathfrak{V}}
+\newcommand{\kW}{\mathfrak{W}}
+\newcommand{\kX}{\mathfrak{X}}
+\newcommand{\kY}{\mathfrak{Y}}
+\newcommand{\kZ}{\mathfrak{Z}}
+
+
+
+
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\C}{\mathbb{C}}
+\newcommand{\E}{\mathbb{E}}
+\newcommand{\1}{\mathbbm{1}}
+\newcommand{\Proba}{\mathbb{P}}
+\newcommand{\lp}{\left (}
+\newcommand{\rp}{\right )}
+\newcommand{\ls}{\left [}
+\newcommand{\rs}{\right ]}
+\newcommand{\la}{\left \{}
+\newcommand{\ra}{\right \}}
+\newcommand{\lc}{\left \lceil}
+\newcommand{\rc}{\right \rceil}
+\newcommand{\lf}{\left \lfloor}
+\newcommand{\rf}{\right \rfloor}
+\newcommand{\orbit}{\mathcal{O}}
+\renewcommand{\ln}{\left \|}
+\newcommand{\rn}{\right \|}
+\newcommand{\lb}{\left |}
+\newcommand{\rb}{\right |}
+
+\newcommand{\transition}{{\bf p}}
+\newcommand{\trans}{{\bf q}}
+\newcommand{\cesarotransition}{\overline{\bf p}}
+\newcommand{\reward}{{\bf r}}
+\newcommand{\meanreward}{{\bf m}}
+\newcommand{\mdp}{{\bf M}}
+\newcommand{\bias}{{\bf b}}
+\newcommand{\gain}{{\bf g}}
+\newcommand{\sdp}{\Pi ( \mdp )}
+\newcommand{\support}{\texttt{Supp}}
+\newcommand{\nuxq}{\nu \otimes q}
+\newcommand{\rxp}{\reward (s,a) \otimes \transition(s,a)}
+\newcommand{\rxphat}{\hat \reward^k (s,a) \otimes \hat \transition^k(s,a)}
+\newcommand{\sadistributions}{\cF_{sa} \otimes \cP (\cS)}
+\newcommand{\sastardistributions}{\cF_{s\star} \otimes \cP (\cS)}
+\newcommand{\critical}{\cC_{sa,\mdp} \lp \cF_{sa} \otimes \cP (\cS) \rp}
+\newcommand{\criticalepsilon}{\cC_{sa,\mdp} \lp \cF_{sa} \otimes \cP (\cS), \epsilon \rp}
+\newcommand{\criticalempirical}{\cC_{sa,\mdpempiriqueskeleton} \lp \cF_{sa} \otimes \cP (\cS) \rp}
+\newcommand{\thresholdt}{\hat \gamma_s(t)}
+\newcommand{\threshold}{\gamma_s \lp \mdp \rp}
+
+\newcommand{\thresholdkhat}{\hat \gamma_s(k)}
+\newcommand{\thresholdk}{\gamma_s \lp k \rp}
+
+\newcommand{\nsat}{N_{s,a} (t)}
+\newcommand{\nsa}{N_{s,a}}
+\newcommand{\nsastart}{N_{s,\star} (t)}
+\newcommand{\nsastar}{N_{s,\star}}
+
+
+
+\newcommand{\UCRL}{\texttt{UCRL}}
+\newcommand{\UCRLB}{\texttt{UCRL2}}
+\newcommand{\UCRLC}{\texttt{UCRL3}}
+\newcommand{\PSRL}{\texttt{PSRL}}
+\newcommand{\KLUCRL}{\texttt{KL-UCRL}}
+
+\newcommand{\IRL}{\texttt{IMED-RL}}
+\newcommand{\KLUCB}{\texttt{KL-UCB}}
+\newcommand{\klUCB}{\texttt{kl-UCB}}
+\newcommand{\KLUCBp}{\texttt{KLUCB}$^+$}
+\newcommand{\UCB}{\texttt{UCB}}
+\newcommand{\UCBun}{\texttt{UCB1}}
+\newcommand{\KLUCBUB}{\texttt{KLUCB-UB}}
+\newcommand{\DMED}{\texttt{DMED}}
+\newcommand{\IMED}{\texttt{IMED}}
+\newcommand{\MED}{\texttt{MED}}
+\newcommand{\FIMED}{\texttt{FIMED}}
+\newcommand{\KLIMED}{\texttt{kl-IMED}}
+\newcommand{\IMEDKL}{\texttt{IMED-kl}}
+\newcommand{\FMED}{\texttt{FMED}}
+\newcommand{\OIMED}{\texttt{OIMED}}
+\newcommand{\OMED}{\texttt{OMED}}
+\newcommand{\IMEDUB}{\texttt{IMED-UB}}
+\newcommand{\dIMEDUB}{\texttt{d-IMED-UB}}
+\newcommand{\OSSB}{\texttt{OSSB}\xspace}
+\newcommand{\OSUB}{\texttt{OSUB}\xspace}
+\newcommand{\OSLB}{\texttt{OSLB}\xspace}
+\newcommand{\OFUL}{\texttt{OFUL}\xspace}
+\newcommand{\IMEDGS}{\texttt{IMED-GS}\xspace}
+\newcommand{\IMEDGSstar}{\texttt{IMED-GS}$^\star$\xspace}
+\newcommand{\IMEDEC}{\texttt{IMED-EC}\xspace}
+\newcommand{\NPTS}{\texttt{NPTS}}
+
+\newcommand{\kinf}{\cK_{\text{inf}}^{\cF}}
+\newcommand{\ksa}{\underline{\mathbf{K}}_{s,a}}
+\newcommand{\ksat}{\underline{\mathbf{K}}_{s_t,a}}
+\newcommand{\ksax}{\underline{\mathbf{K}}_{x}}
+\newcommand{\cksa}{\underline{\mathbf{\cK}}_{s,a}}
+
+\newcommand{\ksastar}{\underline{\mathbf{K}}_{s\star}}
+\newcommand{\cksastar}{\underline{\mathbf{\cK}}_{s\star}}
+
+\newcommand{\ksaempirique}{\mathbf{K}_{s,a}}
+\newcommand{\hsa}{\mathbf{H}_{s,a}}
+\newcommand{\hsat}{\mathbf{H}_{s_t,a}}
+\newcommand{\hsastar}{\mathbf{H}_{s,\star}}
+\newcommand{\kopt}{\cK_{opt}}
+\newcommand{\keq}{\mathcal{K}_{eq}}
+\newcommand{\mdpempiriqueskeleton}{\widehat{\mdp}_t\lp\cA(t)\rp}
+\newcommand{\mdpempirique}{\widehat{\mdp}}
+\newcommand{\mdpskeleton}{\mdp\lp\cA(t)\rp}
+\newcommand{\mdpempiriqueskeletonk}{\widehat{\mdp}_k\lp\cA(k)\rp}
+\newcommand{\mdpskeletonk}{\mdp\lp\cA(k)\rp}
+\newcommand{\mdpskeletonnu}{\mdp\lp\cA(\sigma_t^{\nu})\rp}
+\newcommand{\mdpskeletonnup}{\mdp\lp\cA(\sigma_t^{\nu+1})\rp}
+
+
+\newcommand{\Real}{\mathbb{R}}
+\newcommand{\Nat}{\mathbb{N}}
+\newcommand{\Z}{\mathbb{Z}}
+\newcommand{\Hilbert}{\mathcal{H}}
+\newcommand{\Pmeas}{\mathfrak{M}_1^+}
+\newcommand{\Meas}{\mathcal{M}}
+
+\renewcommand{\Pr}{\mathbb{P}}
+\newcommand{\Esp}{\mathbb{E}}
+%\newcommand{\Var}{\mathbb{V}}
+%\renewcommand{\Pr}{\mathbb{P}}
+\newcommand{\PP}{{\cal P}}
+\newcommand{\Pn}{\mathcal{P}_n}
+
+\newcommand{\Rad}{\mathcal{R}}
+\newcommand{\Normal}{\cN}
+\newcommand{\Bern}{\mathcal{B}}
+\newcommand{\KL}{\text{\normalfont KL}}
+\newcommand{\kl}{\text{\normalfont kl}}
+\newcommand{\D}{\text{\normalfont D}}
+
+\newcommand{\ind}{\mathbb{I}}
+\newcommand{\indic}[1]{\mathbb{I}\{#1\}}
+%\renewcommand{\mod}[2]{[#1 \,\, \mathrm{mod} \,\, #2]}
+\newcommand{\fracpartial}[2]{\frac{\partial #1}{\partial  #2}}
+\newcommand{\abs}[1]{\left|#1\right|}
+
+\renewcommand{\phi}{\varphi}
+\renewcommand{\epsilon}{\varepsilon}
+\renewcommand{\leq}{\leqslant}
+\renewcommand{\geq}{\geqslant}
+\renewcommand{\hat}{\widehat}
+%\newcommand{\wh}{\widehat}
+\newcommand{\ol}{\overline}
+\newcommand{\mt}{\widetilde{\mu}}
+%\newcommand{\wt}{\widetilde}
+%\renewcommand{\d}{\mathrm{d}}
+\newcommand{\nup}{\kappa}
+%\newcommand{\eps}{\varepsilon}
+% \newcommand{\ra}{\rightarrow}
+
+\newcommand{\eqdef}{\stackrel{\rm def}{=}}
+% \newcommand{\qed}{\hfill$\square$}
+
+
+\newcommand{\beqan}{\begin{eqnarray*}}
+\newcommand{\eeqan}{\end{eqnarray*}}
+ 
+
