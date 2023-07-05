@@ -50,33 +50,18 @@ From this result, we see that our objective will be to optimize $\gamma_t$ in or
 
 \[\bP(\bar E_t) \leq \bP\left(\bar E_t, \forall j \in [K]:\; N_j(t)\geq \frac{\alpha_j}{2}t\right) + \bP\left(\bar E_t, \exists j \in [K]:\; N_j(t)\leq \frac{\alpha_j}{2}t\right) \;. \]  
 
-We start by upper bounding the second term, 
+We start by upper bounding the second term,
 
 \begin{align*}
-\bP\left(\bar E_t, \exists j \in [K]:\; N_j(t) \leq  \frac{\alpha_j}{2}t\right) \leq \sum_{j=1}^K e^{-t \kl\left(\frac{\alpha_j}{2}, \alpha_j\right)} \leq \sum_{j=1}^K e^{-t \frac{\alpha_j^2}{4}} \;,
+\bP\left(\bar E_t, \exists j \in [K]:\; N_j(t) \leq  \frac{\alpha_j}{2}t\right) \leq \sum_{j=1}^K e^{-t \kl\left(\frac{\alpha_j}{2}, \alpha_j\right)} \leq \sum_{j=1}^K e^{-t \frac{\alpha_j^2}{2}} \;,
 \end{align*}
-\begin{equation}\label{eq::linearly_sampled}
-\bP\left(\bar E_t, \exists j \in [K]:\; N_j(t) \leq  \frac{\alpha_j}{2}t\right) \leq \sum_{j=1}^K e^{-t \kl\left(\frac{\alpha_j}{2}, \alpha_j\right)} \;,
-\end{equation}
 
 where $\kl$ denotes the Bernoulli KL-divergence, and we used the fact that $N_j(t)$ stochastically dominates a sum of i.i.d. Bernoulli random variables with mean $\alpha_j$. We now consider the first term, in which all arms are linearly sampled.
 
-For simplicity, we assume that $\rho \coloneqq 1- \sum_{i=1}^K \frac{\lambda_i}{\mu_i}>0$, hence the problem is in the interior of the ``feasible set''. 
-Under this assumption, the greedy problem is feasible if for instance 
+For simplicity, we assume that $\rho \coloneqq 1- \sum_{i=1}^K \frac{\lambda_i}{\mu_i}>0$, hence the problem is in the interior of the ``feasible set''. Under this assumption, the greedy allocation is feasible if for instance 
 \[\frac{\lambda_i}{\wh \mu_i}\leq \frac{\lambda_i}{\mu_i}+ \frac{\rho}{K} \Rightarrow \wh \mu_i \geq \frac{1}{\frac{1}{\mu_i}+\frac{\rho}{K}}=\frac{\mu_i}{1+\frac{\rho \mu_i}{K}} = \mu_{i} - \underbrace{\frac{\mu_i \frac{\rho \mu_i}{K}}{1+\frac{\rho \mu_i}{K}}}_{\epsilon_{i, \rho }} ;.\]
-so that $\overline{E}_t \implies \exists i \in [K], \hat{\mu}_{i} <  \mu_{i}  - \epsilon_{i, \rho}$.
-The probability of this event can be easily controlled with usual union bounds and concentration inequalities as the arms are linearly sampled:
-\begin{align*}
-\bP( \overline{E}_{t}, \forall j \in [K]: N_j(t) \geq \frac{\alpha_j}{2}t ) &\leq \bE[\bP( \exists i \in [K],  \hat{\mu}_{i} <  \mu_{i}  - \epsilon_{i, \rho}  | N_i(t) \geq \alpha_{i}t) )]	 \\
-&\leq \sum_{i=1}^K \exp(- \alpha_i \frac{t}{2} d(\mu_i - \epsilon_{i, \rho}, \mu_{i})) \leq \sum_{i=1}^K \exp(- \alpha_i t \epsilon_{i, \rho}^2))
-\end{align*}
-Finally, if the greedy allocation is feasible we use that
-\[x_{t,i} \geq \frac{\lambda_i}{\mu_i} - \delta_t \Rightarrow \wh \mu_{t,i} \leq \frac{\mu_i}{1-\delta_t \mu_i} \coloneqq \mu_i + \epsilon_{i, \delta_t} \;, \]
-which is again a large deviation of the empirical mean if $\delta_t$ is large enough. We have that $\epsilon_{i, \delta_t} \approx \delta_t \mu_i^2$, so it is easy to see that $\delta_t$ of the form \[\delta_t = \frac{1}{\mu_i^2} \times \sqrt{\frac{2\gamma \log(t)}{\alpha_i t}}\;,\] 
-for some constant $\gamma$, will be enough to do what we want.
-For simplicity, we assume that $\rho \coloneqq 1- \sum_{i=1}^K \frac{\lambda_i}{\mu_i}>0$, hence the problem is in the interior of the ``feasible set''. Under this assumption, the greedy allocation is feasible if for instance \[\frac{\lambda_i}{\wh \mu_{t, i}}\leq \frac{\lambda_i}{\mu_i}+ \frac{\rho}{K} \Rightarrow \wh \mu_{t, i} \geq \frac{1}{\frac{1}{\mu_i}+\frac{\rho}{\lambda_iK}}=\frac{\mu_i}{1+\frac{\rho \mu_i}{\lambda_i K}}\coloneqq \mu_i - \epsilon_{i, \rho}\;.\]
 
-Some calculation provide that $\epsilon_{i, \rho}=\rho \frac{\mu_i^2}{\mu_i \rho + \lambda_i K}$. Using this result, and Hoeffding's inequality we obtain that 
+Using Hoeffding's inequality we obtain that 
 
 \begin{align*}
 \bP\left(\sum_{i=1}^K \frac{\lambda_i}{\wh \mu_{t, i}}\geq 1, \forall j \in [K]:\; N_j(t)\geq \frac{\alpha_j}{2}t\right) & \leq \sum_{j=1}^K \sum_{n=\alpha_j \frac{t}{2}}^t \bP\left(\wh \mu_{t,j} \leq \mu_j - \epsilon_{j, \rho}\right) \\
