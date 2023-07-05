@@ -16,19 +16,20 @@ where $\Delta_k = \mu_k - \mu_1$. This expression is closer to usual formulation
 
 Our claim is that this problem can be solved simply by using a greedy algorithm. For that, we first analyze the possible values for $x^\star$. First, it is clear that \[ \mu_k < \mu_1 \Rightarrow x_k^\star = \frac{\lambda_k}{\mu_k} \;. \]
 
+Note that the problem is feasible only if $\sum_{k=1}^{k}\frac{\lambda_i}{\mu_i} \leq  1$. after allocating their probability to sub-optimal arms, any $x^\star$ satisfying \[  \forall j > 1,   x_j^\star = \frac{\lambda_j}{\mu_j} \text{ and } x_1^{\star}  = 1 -\sum_{k: \mu_k<\mu_1} x_k^\star \]
 Note that the problem is feasible only if $\sum_{k=1}^{K}\frac{\lambda_i}{\mu_i}\leq1$. After allocating their probability to sub-optimal arms, any $x^\star$ satisfying \[ \forall j: \mu_j =\mu_1\;, \; x_j^\star \geq \frac{\lambda_j}{\mu_j} \text{ and } \sum_{j: \mu_j=\mu_1} = 1 -\sum_{k: \mu_k<\mu_1} x_k^\star \]
 
-is valid, and is uniquely defined in case $1$ is the only optimal arm or $\sum \frac{\lambda_j}{\mu_j}=1$.
+is valid, and is the unique solution if $1$ is the only optimal arm or $\sum \frac{\lambda_j}{\mu_j}=1$.
 
 \paragraph{Greedy algorithm} The greedy algorithm simply consists in using the optimal policy corresponding to the empirical estimates of the mean if it provides a feasible allocation. If it's not the case we simply propose uniform sampling. Hence, the steps of the algorithms are: 
 \begin{enumerate}
 	\item $\forall j$, compute $\wh \mu_j$.
-	\item Check if $\sum_{j=1}^K \frac{\lambda_j}{\wh \mu_j}<1$, i.e. if the greedy allocation if feasible.
+	\item Check if $\sum_{j=1}^K \frac{\lambda_j}{\wh \mu_j} \leq  1$, i.e. if the greedy allocation if feasible.
 	\item If yes, use $x_j=\frac{\lambda_j}{\wh \mu_j}$ for each empirically sub-optimal arm, make the probability sum to $1$ by adding the remaining mass on the best empirical arm $\star = \aargmax \wh \mu_j$ (choose at random if several).
 \end{enumerate}
 
 
-\subsection{Analysis of Greedy}
+\subsection{Analysis}
 
 \paragraph{Fairness constraint} Fix any arm $i \in [K]$. For any sequence of events $(E_t)_{t\in[T]}$ we obtain that 
 
@@ -51,12 +52,28 @@ From this result, we see that our objective will be to optimize $\gamma_t$ in or
 
 We start by upper bounding the second term, 
 
+\begin{align*}
+\bP\left(\bar E_t, \exists j \in [K]:\; N_j(t) \leq  \frac{\alpha_j}{2}t\right) \leq \sum_{j=1}^K e^{-t \kl\left(\frac{\alpha_j}{2}, \alpha_j\right)} \leq \sum_{j=1}^K e^{-t \frac{\alpha_j^2}{4}} \;,
+\end{align*}
 \begin{equation}\label{eq::linearly_sampled}
 \bP\left(\bar E_t, \exists j \in [K]:\; N_j(t) \leq  \frac{\alpha_j}{2}t\right) \leq \sum_{j=1}^K e^{-t \kl\left(\frac{\alpha_j}{2}, \alpha_j\right)} \;,
 \end{equation}
 
-where $\kl$ denotes the Bernoulli KL-divergence, and we used the fact that $N_j(t)$ is stochastically dominated by a sum of i.i.d. Bernoulli random variables with mean $\alpha_j$. We now consider the first term, in which all arms are linearly sampled.
+where $\kl$ denotes the Bernoulli KL-divergence, and we used the fact that $N_j(t)$ stochastically dominates a sum of i.i.d. Bernoulli random variables with mean $\alpha_j$. We now consider the first term, in which all arms are linearly sampled.
 
+For simplicity, we assume that $\rho \coloneqq 1- \sum_{i=1}^K \frac{\lambda_i}{\mu_i}>0$, hence the problem is in the interior of the ``feasible set''. 
+Under this assumption, the greedy problem is feasible if for instance 
+\[\frac{\lambda_i}{\wh \mu_i}\leq \frac{\lambda_i}{\mu_i}+ \frac{\rho}{K} \Rightarrow \wh \mu_i \geq \frac{1}{\frac{1}{\mu_i}+\frac{\rho}{K}}=\frac{\mu_i}{1+\frac{\rho \mu_i}{K}} = \mu_{i} - \underbrace{\frac{\mu_i \frac{\rho \mu_i}{K}}{1+\frac{\rho \mu_i}{K}}}_{\epsilon_{i, \rho }} ;.\]
+so that $\overline{E}_t \implies \exists i \in [K], \hat{\mu}_{i} <  \mu_{i}  - \epsilon_{i, \rho}$.
+The probability of this event can be easily controlled with usual union bounds and concentration inequalities as the arms are linearly sampled:
+\begin{align*}
+\bP( \overline{E}_{t}, \forall j \in [K]: N_j(t) \geq \frac{\alpha_j}{2}t ) &\leq \bE[\bP( \exists i \in [K],  \hat{\mu}_{i} <  \mu_{i}  - \epsilon_{i, \rho}  | N_i(t) \geq \alpha_{i}t) )]	 \\
+&\leq \sum_{i=1}^K \exp(- \alpha_i \frac{t}{2} d(\mu_i - \epsilon_{i, \rho}, \mu_{i})) \leq \sum_{i=1}^K \exp(- \alpha_i t \epsilon_{i, \rho}^2))
+\end{align*}
+Finally, if the greedy allocation is feasible we use that
+\[x_{t,i} \geq \frac{\lambda_i}{\mu_i} - \delta_t \Rightarrow \wh \mu_{t,i} \leq \frac{\mu_i}{1-\delta_t \mu_i} \coloneqq \mu_i + \epsilon_{i, \delta_t} \;, \]
+which is again a large deviation of the empirical mean if $\delta_t$ is large enough. We have that $\epsilon_{i, \delta_t} \approx \delta_t \mu_i^2$, so it is easy to see that $\delta_t$ of the form \[\delta_t = \frac{1}{\mu_i^2} \times \sqrt{\frac{2\gamma \log(t)}{\alpha_i t}}\;,\] 
+for some constant $\gamma$, will be enough to do what we want.
 For simplicity, we assume that $\rho \coloneqq 1- \sum_{i=1}^K \frac{\lambda_i}{\mu_i}>0$, hence the problem is in the interior of the ``feasible set''. Under this assumption, the greedy allocation is feasible if for instance \[\frac{\lambda_i}{\wh \mu_{t, i}}\leq \frac{\lambda_i}{\mu_i}+ \frac{\rho}{K} \Rightarrow \wh \mu_{t, i} \geq \frac{1}{\frac{1}{\mu_i}+\frac{\rho}{\lambda_iK}}=\frac{\mu_i}{1+\frac{\rho \mu_i}{\lambda_i K}}\coloneqq \mu_i - \epsilon_{i, \rho}\;.\]
 
 Some calculation provide that $\epsilon_{i, \rho}=\rho \frac{\mu_i^2}{\mu_i \rho + \lambda_i K}$. Using this result, and Hoeffding's inequality we obtain that 
