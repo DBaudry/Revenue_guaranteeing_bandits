@@ -104,7 +104,7 @@ This final step completes the proof.
 \textcolor{red}{Todo: Try the rescaling to tackle the case $\rho = 0$. To avoid arbitrarily large values we can truncate the sum (all individual terms should not be greater than $1$).}
 
 
-\paragraph{Regret} Consider an arm $k$ satisfying $\Delta_k>0$, we want to upper bound $\cR_{T, i} =  \bE\left[\sum_{t=1}^T (x_{t, i} - x^\star_i)\right]$. We can conduct the analysis with the same tools as in the previous section. Indeed, consider the favorable events $\cG_t = \{x_{t,i}-x_i^\star\leq \gamma_t \}$, $\cH_t=\{\forall j \in [K]: \; N_j(t)\geq \alpha_j/2 t \}$ and $\cJ_t = \{\sum_{j=1}^K \frac{\lambda_j}{\wh \mu_{t,j}}\leq 1 \}$. Then we can write that 
+\paragraph{Regret} Consider an arm $k$ satisfying $\Delta_k>0$, we want to upper bound $\cR_{T, k} =  \bE\left[\sum_{t=1}^T (x_{t, k} - x^\star_k)\Delta_k\right]$. We can conduct the analysis with the same tools as in the previous section. Indeed, consider the favorable events $\cG_t = \{x_{t,i}-x_i^\star\leq \gamma_t \}$, $\cH_t=\{\forall j \in [K]: \; N_j(t)\geq \frac{\alpha_j}{2} t \}$ and $\cJ_t = \{\sum_{j=1}^K \frac{\lambda_j}{\wh \mu_{t,j}}\leq 1 \}$. Then we can write that 
 
 \begin{align*}
 \cR_{T,i} &= \bE\left[\sum_{t=1}^T (x_{t, i} - x^\star_i)(\ind(\cG_t)+\ind(\bar \cG_t, \cH_t, \cJ_t)+ \ind(\cH_t, \bar \cJ_t)+ \ind(\bar\cH_t))\right] \\
@@ -117,11 +117,14 @@ Similarly, we can use Equation~\eqref{eq::feasability_greedy} to upper bound the
 \[ \bE\left[\sum_{t=1}^T \ind(\cH_t, \bar \cJ_t)\right] \leq \sum_{t=1}^T \sum_{j=1}^K \frac{e^{-2\alpha_j \frac{t}{2} \epsilon_{j, \rho}^2}}{2\epsilon_{j, \rho}^2}\leq \sum_{j=1}^K \frac{1}{2 \alpha_j \epsilon_{j, \rho}^4} \;. \]
 It remains to upper bound one term, analogous to $P_{t,i}$ in the fairness analysis. This time, we obtain that if the greedy allocation is feasible then
 \[x_{t,i}\geq \frac{\lambda_i}{\mu_i}+ \gamma_t \Rightarrow \wh \mu_{t,i} \leq \frac{\mu_i}{1+\gamma_t \mu_i} \coloneqq \mu_i - \epsilon_{i,t}''\;, \]
-with $\epsilon_{i,t}''=\frac{\gamma_t \mu_i^2}{1+\gamma_t \mu_i}$. In the following, we use that $\gamma_t \mu_i \leq 1$ and that under $\cH_t$ it holds that 
+with $\epsilon_{i,t}''=\frac{\gamma_t \mu_i^2}{1+\gamma_t \mu_i}$, or that arm $k$ has the best empirical mean: \[\{\wh \mu_{k, t} \geq \max_{j\neq k} \wh \mu_{j, t}\} \subset \{\wh \mu_{k, t} \geq \wh \mu_{1, t}\} \subset \{\wh \mu_{k, t} \geq x_k \} \cup \{\wh \mu_{1, t} \leq x_k  \}\; \]
+
+for some $x_k\in \R$. We choose for convenience $x_k=\frac{\Delta_k}{2}$. We then use that $\gamma_t \mu_i \leq 1$, so that 
 \begin{align*}
-\bE\left[\sum_{t=1}^T \ind(\bar \cG_t, \cH_t, \cJ_t)\right] &\leq \sum_{t=1}^T \sum_{n=\alpha_i \frac{t}{2}}^t e^{-2\alpha_i n \epsilon_{i,t}''^2} \\
-& \leq \sum_{t=1}^T \sum_{n=\alpha_i \frac{t}{2}}^t e^{-2\alpha_i n (\gamma_t \mu_i)^2}\\
-& \leq \sum_{t=1}^T \frac{e^{-\alpha_i t (\gamma_t \mu_i)^2}}{2\alpha_i (\gamma_t \mu_i)^2} \;.
+\bE\left[\sum_{t=1}^T \ind(\bar \cG_t, \cH_t, \cJ_t)\right] &\leq \sum_{t=1}^T \left\{\sum_{n=\alpha_k\frac{t}{2}}^t \left\{e^{-2 n \epsilon_{k,t}''^2}+ e^{-2 n x_k^2}\right\} + \sum_{n=\alpha_1 \frac{t}{2}}^t e^{-2 n x_k^2} \right\} \\
+%& \leq \sum_{t=1}^T \sum_{n=\alpha_i \frac{t}{2}}^t e^{-2\alpha_i n (\gamma_t \mu_i)^2}\\
+& \leq \sum_{t=1}^T \left\{\frac{e^{-\alpha_k t (\gamma_t \mu_k)^2}}{2 (\gamma_t \mu_k)^2} + \frac{e^{-\alpha_k t x_k^2}}{2 x_k^2} + \frac{e^{-\alpha_1 t x_k^2}}{2 x_k^2}  \right\}  \\
+& \leq \sum_{t=1}^T \frac{e^{-\alpha_k t (\gamma_t \mu_k)^2}}{2\alpha_k (\gamma_t \mu_k)^2} + \frac{1}{2\alpha_k x_k^4} + \frac{1}{2\alpha_1 x_k^4} \;.
 \end{align*}
 
 To complete the proof, we choose a tuning of $(\gamma_t)_{t\in[T]}$ to make $\sum_{t=1}^T \left(\gamma_t + \frac{e^{-\alpha_i t (\gamma_t \mu_i)^2}}{2\alpha_i (\gamma_t \mu_i)^2}\right)$ sub-linear. For instance, with $\gamma_t=\frac{1}{\mu_i^2}\sqrt{3\frac{\log(t)}{\alpha_i t}}$ we obtain that 
