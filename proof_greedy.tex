@@ -1,26 +1,5 @@
 \section{Proof for Greedy}
 
-Consider a randomized algorithm that samples an arm at time $t$ with probability $x_t \in \Delta_K$. We want an algorithm that satisfies the fairness constraint
-
-\[\forall i \in [K]\;, \; \liminf \frac{1}{T} \bE\left[\sum_{t=1}^T x_{t,i} \mu_i \right] \geq \lambda_i \;,\]
-
-i.e. all arms $i$ are guaranteed a minimum reward. If an algorithm satisfies this constraint, then we want to minimize the regret, that is defined by in the class of fair algorithms:
-
-\[ \cR_T = \sum_{t=1}^T \bE\left[(x^\star - x_t)^\top\mu \right]\;, \]
-
-where $x^\star$ is one of the (not unique if several arms are optimal) optimal allocation among those that satisfy the constraint. It is more illustrative to write the regret only in terms of the sub-optimal arm. Indeed, for any $i\in [K]$ it holds that $x_i = 1-\sum_{j \neq i } x_j$. Assuming w.l.o.g. that arm $1$ is among the best arms, we obtain that 
-
-\begin{equation}\label{eq::regret}\cR_T =  \sum_{k=2}^K \bE\left[\sum_{t=1}^T (x_{t, i} - x^\star_i)\right] \Delta_k \;, \end{equation}
-
-where $\Delta_k = \mu_k - \mu_1$. This expression is closer to usual formulations of the regret.
-
-Our claim is that this problem can be solved simply by using a greedy algorithm. For that, we first analyze the possible values for $x^\star$. First, it is clear that \[ \mu_k < \mu_1 \Rightarrow x_k^\star = \frac{\lambda_k}{\mu_k} \;. \]
-
-Note that the problem is feasible only if $\sum_{k=1}^{k}\frac{\lambda_i}{\mu_i} \leq  1$. after allocating their probability to sub-optimal arms, any $x^\star$ satisfying \[  \forall j > 1,   x_j^\star = \frac{\lambda_j}{\mu_j} \text{ and } x_1^{\star}  = 1 -\sum_{k: \mu_k<\mu_1} x_k^\star \]
-Note that the problem is feasible only if $\sum_{k=1}^{K}\frac{\lambda_i}{\mu_i}\leq1$. After allocating their probability to sub-optimal arms, any $x^\star$ satisfying \[ \forall j: \mu_j =\mu_1\;, \; x_j^\star \geq \frac{\lambda_j}{\mu_j} \text{ and } \sum_{j: \mu_j=\mu_1} = 1 -\sum_{k: \mu_k<\mu_1} x_k^\star \]
-
-is valid, and is the unique solution if $1$ is the only optimal arm or $\sum \frac{\lambda_j}{\mu_j}=1$.
-
 \paragraph{Greedy algorithm} The greedy algorithm simply consists in using the optimal policy corresponding to the empirical estimates of the mean if it provides a feasible allocation. If it's not the case we simply propose uniform sampling. Hence, the steps of the algorithms are: 
 \begin{enumerate}
 	\item $\forall j$, compute $\wh \mu_j$.

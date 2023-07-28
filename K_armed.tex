@@ -1,0 +1,190 @@
+\section{Analysis of Fair-MAB in $K$-armed bandits}
+
+For all of our results assume that the means are upper bounded by a known constant $\mu^+$. If we don't do that we can use a forced exploration, but this would degrade some bounds in the scaling of $T$.
+\begin{itemize}
+	\item UCB oracle: works also for $\rho_\lambda=0$. Constant problem-dependent bandit regret, $\sqrt{T}$ fair regret.	
+	\item LCB oracle: requires $\rho_\lambda>0$, constant problem-dependent fair regret, $\sqrt{T}$ bandit regret.
+	\item Greedy oracle: $\rho_\lambda>0$, both regrets are in $\sqrt{T}$. 
+\end{itemize}
+
+TO-DO:
+\begin{itemize}
+	\item Check the ways to minimize $\sum \bP(\mu_k \notin [\LCB_{k,t}, \UCB_{k, t}])$ with a minimal confidence radius (should be fast, I believe that the KL-UCB paper do that).
+	\item Check if there are some ways to avoid the dependency in $(\alpha_k)$ without degrading the performance.
+	\item Check if we can avoid $\rho_\lambda>0$ and $\rho_\lambda^{-2}$ in the bounds for LCB and greedy.
+	\item Derive lower bounds.
+	\item See how these principles/proof techniques can be adapted for contextual case.
+\end{itemize}
+
+
+\subsection{Fair regret}
+
+Consider Fair-MAB with any oracle. We first propose a generic upper bound that works under the three oracles that we proposed. With a slight abuse we use the notation $\wh q_{k,t}$ for $\frac{\lambda_k}{\wt \mu_{k, t}}$. Assume that $\max_j \mu_j \leq \mu^+$ for a known constant $\mu^+$, and define $\alpha_j = \min \left\{\frac{\lambda_j}{\mu^+}, \frac{1}{K} \right\}$ (remark: this assumption can be replaced by a sub-linear forced exploration up to some changes in the analysis). For a time step $t$, consider the event \[\cG_t=\left\{ \forall k \in [K]\;:\; \mu_k \in [\LCB_{k, t}, \UCB_{k, t}], N_k(t)\geq \frac{\alpha_j}{2}, \sum \wh q_{k,t} \leq 1 \right\}\;,\]
+ where we ommit the confidence levels in the notation for simplicity, but we will fix them later as a function of $t$. Consider an arm $k$, we want to upper bound $\cV_T^k \coloneqq \bE\left[\sum_{t=1}^T \left(\lambda_k-p_{k,t} \mu_k \right)\right]$.
+ 
+We first write that 
+\begin{align*}
+\cV_T^k &\leq \bE\left[\sum_{t=1}^T \left(\lambda_k-p_{k, t} \mu_k \right)\right] \\
+&
+\leq  \underbrace{\bE\left[\sum_{t=1}^T \left(\lambda_k-\wh q_{k,t} \mu_k \right) \ind(\cG_t)\right]}_{V_1} + \underbrace{\bE\left[\sum_{t=1}^T \left(\lambda_k-p_{k, t} \mu_k \right) \ind(\bar \cG_t)\right]}_{V_2} \;. \\
+\end{align*}
+
+\paragraph{Upper bounding $V_1$} We first re-write $V_1$ as a function of $\wt \mu_{k, t}$ under $\cG_t$, 
+\begin{align*}
+V_1 & = \bE\left[\sum_{t=1}^T \left(\lambda_k- \frac{\lambda_k}{\wt \mu_{k, t}} \mu_k \right) \ind(\cG_t)\right] \\
+& = \lambda_k \bE\left[\sum_{t=1}^T \left(\frac{\wt \mu_{k,t}-\mu_k}{\wt \mu_{k,t}}\right) \ind(\cG_t)\right]\;.
+\end{align*}
+
+Then, we remark that for the LCB oracle it simply holds that $V_1\leq 0$ since $\mu_k\geq \wt \mu_{k,t}$. Let us now consider the UCB oracle, under $\cG_t$ the term inside the expectation is non-negative and satisfies 
+\[\frac{\wt \mu_{k,t}^{\UCB}-\mu_k}{\wt \mu_{k,t}^{\UCB}} \leq \frac{\UCB_{k,t}-\mu_k}{\mu_k} \leq \frac{\UCB_{k,t}-\LCB_{k, t}}{\mu_k} \;. \]
+Furthermore, this bound also holds for the greedy oracle since the empirical mean also belong to the confidence interval. For these two oracles we thus obtain a bound that depend on the design of the confidence interval. 
+
+To give a more precise example, let us assume that the distributions are supported on $[0,1]$. For any $\delta>0$, Hoeffding's inequality states that 
+\[\bP\left(|\wh \mu_{k, n}-\mu_k|\geq \delta \right)\leq 2e^{-2n\delta^2}\;, \]
+so we can define for instance $\LCB_{k,t} = \wh \mu_k(t) - \sqrt{\frac{\log(t)}{N_k(t)}} $ and $\UCB_{k,t} = \wh \mu_k(t) + \sqrt{\frac{\log(t)}{N_k(t)}}$ to obtain a confidence level of $t^{-2}$, which provides \[\UCB_{k,t}-\LCB_{k, t} = 2\sqrt{\frac{\log(t)}{N_k(t)}} \leq 2\sqrt{\frac{\log(t)}{\alpha_k t}} \;, \]
+since under $\cG_t$ it also holds that $N_k(t)\geq \frac{\alpha_k}{2}t$. Plugging this into the upper bound on $V_1$, we obtain for the Greedy and UCB oracles that 
+
+\[V_1 \leq \frac{\lambda_k}{\mu_k} \sum_{t=1}^T 2 \sqrt{\frac{\log(t)}{\alpha_k t}} \leq 2\frac{\lambda_k}{\mu_k}\sqrt{\frac{T\log(T)}{\min\left\{\lambda_k/\mu^+, K^{-1} \right\}}}\;. \] %= \sqrt{8\lambda_k T \log(T) \max\left\{1, \frac{\lambda_k}{K} \right\}} \;. \]
+
+\begin{remark}
+	If we replace the uniform sampling if the oracle allocation is feasible by probabilities $\left(\frac{\lambda_k}{\mu^+}\right)_{k \in [K]}$ (allocating the remaining probability arbitrarily) we just obtain that \[V_1 \leq \frac{2}{\mu_k}\sqrt{\lambda_k \mu^+ T \log(T)}.\] It looks better, maybe we should do that.
+\end{remark}
+
+\paragraph{Upper bounding $V_2$} A union bound provides that 
+\begin{align*}
+V_2 & \leq \lambda_k \sum_{j=1}^K \sum_{t=1}^T \bP(\mu_j \notin [\LCB_{j, t}, \UCB_{j, t}])  + \lambda_k \sum_{j=1}^K \sum_{t=1}^T\bP\left(N_j(t)\leq \frac{\alpha_j}{2}\right) \\
+&+ \sum_{t=1}^T \bP\left(\forall j \in [K]; \mu_j \in [\LCB_{j, t}, \UCB_{j, t}], N_j(t)\geq \frac{\alpha_j}{2} \sum_j \wh q_{j,t} \geq 1\right) 
+\end{align*}
+ 
+First, we remark $\sum_{j=1}^K \sum_{t=1}^T \bP(\mu_j \notin [\LCB_{j, t}, \UCB_{j, t}])$ only depend on the confidence level of our LCB/UCBs. To make the sum converge we can for instance choose $\delta_t = 1/t^2$ and the first term of the upper bound of $V_2$ becomes $\cO(\lambda_k)$. 
+
+The second term can be upper bounded using that, at each time step $t$, the sampling probability of each arm $j$ is at least $\alpha_j$. Hence, $N_j(t)$ is statistically dominated by a sum of i.i.d. Bernoulli random variables with probability $\alpha_j$, which leads to 
+\begin{align*}
+\sum_{j=1}^K \sum_{t=1}^T\bP\left(N_j(t)\leq \frac{\alpha_j}{2}\right) \leq \sum_{j=1}^K \sum_{t=1}^T e^{-t \kl\left(\frac{\alpha_j}{2}, \alpha_j\right)} \leq  \sum_{j=1}^K   \frac{1}{\kl\left(\frac{\alpha_j}{2}, \alpha_j\right)} \leq \sum_{j=1}^K\frac{2}{\alpha_j^2}\;,
+\end{align*}
+where $\kl$ denotes the Bernoulli KL-divergence.
+
+The third term depends on the type of oracle chosen. Among our three oracles, the simplest case is UCB. Indeed, when all $(\mu_k)$ belong to their confidence bands it simply holds that  \[\sum_{k=1}^K \frac{\lambda_k}{\wt \mu_k^{\UCB}} \leq \sum_{k=1}^K \frac{\lambda_k}{ \UCB_{k,t}} \leq \sum_{k=1}^K \frac{\lambda_k}{ \mu_k}\;,\] so the UCB allocation is feasible and it directly holds that $V_2=\cO(\lambda_k)$ since the second term of its upper bound is in fact $0$.
+
+If the oracle is LCB or greedy, the analysis is more involved and depend on the feasibility gap $\rho_\lambda$. We further assume that $\rho_\lambda>0$. Since by design the confidence bands also satisfy that $\wh \mu_j \in [\LCB_{j, t}, \UCB_{j, t}]$ (is this not the case sometimes? idk), it holds for both oracles that $\wt \mu_{j, t}\geq \mu_j- B_{j, t}$, with $B_{j,t} = \UCB_{j, t} - \LCB_{j, t}$. So, 
+
+\begin{align*}
+\sum_{j=1}^K \wh q_{j, t} \leq \sum_{j=1}^K \frac{\lambda_j}{\mu_j - B_{j, t}} = \sum_{j=1}^K \frac{\lambda_j}{\mu_j}\left(\frac{1}{1-\frac{B_{j, t}}{\mu_j}}\right) = \sum_{j=1}^K \frac{\lambda_j}{\mu_j} + \sum_{j=1}^K \frac{\lambda_j}{\mu_j}\times \frac{B_{j, t}}{\mu_j - B_{j, t}} \;.  \\
+\end{align*}
+Using this result, we obtain that if $\sum_{j=1}^K \frac{\lambda_j}{\mu_j}\times \frac{B_{j, t}}{\mu_j - B_{j, t}} \leq \rho_\lambda$ then $\sum_{j=1}^K \wh q_{j, t}\leq 1$. This is for example true if for all $j$ it holds that $\frac{B_{j, t}}{\mu_j-B_{j, t}}\leq \frac{\rho_\lambda}{1-\rho_\lambda}$. This gives the simple condition \[\forall j \in [K]: \; B_{j,t}\leq \rho_\lambda \mu_j \;. \]
+
+In all generality, we define $t_\lambda= \inf\left\{t \in \N: \; \max_j B_{j,t}\leq \rho_\lambda \mu_j | N_j(t)\geq \frac{\alpha_j}{2}t \right\}$, and upper bound the third component by $t_\lambda$. This gives a final upper bound of the form 
+
+\[V_2 \leq \lambda_k \left(\sum_{j=1}^K \sum_{t=1}^T \bP(\mu_j \notin [\LCB_{j, t}, \UCB_{j, t}]) +\sum_{j=1}^K   \frac{1}{\kl\left(\frac{\alpha_j}{2}, \alpha_j\right)} + t_\lambda\left(\LCB, \UCB\right) \right) \;.  \]
+
+Now, let us be more precise with the example of standard Hoeffding bounds. In that case, we obtain more precisely
+
+\[V_2 \leq \lambda_k \left(K \sum_{t=1}^{+\infty} \frac{1}{t^2} + \sum_{j=2}^K\frac{1}{\kl\left(\frac{\alpha_j}{2}, \alpha_j\right)} + \cO\left(\max_j\frac{2}{\alpha_j(\rho_\lambda \mu_j)^2}\log\left(\frac{2}{\alpha_j(\rho_\lambda \mu_j)^2}\right)\right)\right) \;, \]
+
+where we used for the last term that for any $c>0$, there exists $x_0 \in \R^+$ such that $\forall x\geq x_0$ it holds that $\frac{t}{\log(t)}\geq x$ when $t\geq c x \log(x)$. 
+
+In summary, we proved that $V_2=\cO_{\lambda, \mu}(1)$.
+
+\paragraph{Combining the results} We summarize our results, applying them for distributions with bounded supports and confidence intervals using Hoeffding's inequality to exhibit a precise scaling in all the components of the problem. By upper bounding $V_1$ and $V_2$ we proved that 
+
+\begin{itemize}
+	\item For the LCB oracle, 
+	\[\cV_T \leq \left(\max_{k \in K}\lambda_k\right) \left( K \sum_{t=1}^{+\infty} \frac{1}{t^2} + \sum_{j=2}^K\frac{1}{\kl\left(\frac{\alpha_j}{2}, \alpha_j\right)} + \cO\left(\max_j\frac{2}{\alpha_j(\rho_\lambda \mu_j)^2}\log\left(\frac{2}{\alpha_j(\rho_\lambda \mu_j)^2}\right)\right)\right) \;. \]
+	\item For the greedy oracle, 
+	\begin{align*} \cV_T \leq \max_{k\in K} &\left(\frac{2}{\mu_k}\sqrt{\lambda_k \mu^+ T \log(T)}+ \lambda_k\left(K \sum_{t=1}^{+\infty} \frac{1}{t^2} + \sum_{j=2}^K\frac{1}{\kl\left(\frac{\alpha_j}{2}, \alpha_j\right)} \right.\right. \\
+	& \left.\left. + \cO\left(\max_j\frac{2}{\alpha_j(\rho_\lambda \mu_j)^2}\log\left(\frac{2}{\alpha_j(\rho_\lambda \mu_j)^2}\right)\right)\right)\right) \;. \end{align*}
+	\item And for the UCB oracle, 
+		\begin{align*} \cV_T \leq \max_{k\in K} &\left(\frac{2}{\mu_k}\sqrt{\lambda_k \mu^+ T \log(T)}+ \lambda_k\left(K \sum_{t=1}^{+\infty} \frac{1}{t^2} + \sum_{j=2}^K\frac{1}{\kl\left(\frac{\alpha_j}{2}, \alpha_j\right)}\right)\right) \;. \end{align*}
+\end{itemize}
+
+Let us consider these results from a problem-dependent point of view. $\cV_T$ admits a constant upper bound, which reflects that with this oracle the Fair Bandit will satisfy the fairness constraint faster than with the other approaches. However, the constant depend inversely on the squared feasibility gap. On the other hand, UCB and Greedy both provide a bound of order $\cO(\sqrt{T\log(T)})$ but the second-order term of UCB is better since it does not depend on the feasibility gap. This has another advantage, which is that the upper bound for UCB do not depend on $\mu_k$ (since $\lambda_k/\mu_k \leq 1$) but only on $\frac{\lambda_k}{\mu^+}$: it scales in $\left(\frac{\lambda_k}{\mu^+}\right)^{-2}$ with the last term (sufficient sampling), and in $\left(\frac{\lambda_k}{\mu^+}\right)^{-1/2}$ in the first term.
+
+\subsection{Bandit regret}
+
+We know upper bound the bandit regret for the three instances of Fair MAB that we considered. As in previous section, we consider the following good event
+ \[\cG_t=\left\{ \forall k \in [K]\;:\; \mu_k \in [\LCB_{k, t}, \UCB_{k, t}], N_k(t)\geq \frac{\alpha_j}{2}, \sum \wh q_{k,t} \leq 1 \right\}\;.\]
+
+We denote by $\cR_{T,k}$ the contribution of a sub-optimal arm $k$ to the bandit regret, and first write that 
+\begin{align*}
+\cR_{T,k} &= \bE\left[\sum_{t=1}^T (p_{t, k} - p^\star_k)(\ind(\cG_t)+\ind(\bar \cG_t))\right]\Delta_k \\
+& \leq \sum_{t=1}^T (1-p_k^\star) \bP(\bar \cG_t) + \bE\left[\sum_{t=1}^T (p_{t,k} - p_k^\star)\ind(\cG_t)\right] \Delta_k \;.
+\end{align*}
+
+We remark that we already upper bounded $\sum_{t=1}^T \bP(\bar \cG_t)$ for the three oracles in the previous section, and recall that for LCB and Greedy it holds that
+\[\sum_{t=1}^T \bP(\bar \cG_t) \leq K \sum_{t=1}^{+\infty} \frac{1}{t^2} + \sum_{j=2}^K\frac{1}{\kl\left(\frac{\alpha_j}{2}, \alpha_j\right)} + \cO\left(\max_j\frac{2}{\alpha_j(\rho_\lambda \mu_j)^2}\log\left(\frac{2}{\alpha_j(\rho_\lambda \mu_j)^2}\right)\right)\;, \]
+while for UCB the last term involving the feasibility gap can be removed from the upper bound. We can hence focus on upper bounding $\cS_{T, k} \coloneqq \bE\left[\sum_{t=1}^T (x_{t,k} - x_k^\star)\ind(\cG_t)\right]$. Using Equation~\eqref{eq::sampling_prob}, we obtain that 
+\begin{align*}\cS_{T,k} &= \bE\left[\sum_{t=1}^T (\wh q_{k, t} + (1-\sum_j \wh q_{j, t}) \ind(k_t=k) - p_k^\star)\ind(\cG_t)\right] \\
+& \leq   \underbrace{\bE\left[\sum_{t=1}^T (\wh q_{k, t}-p_k^\star) \ind(\cG_t)\right]}_{\cO_{ T,k}} + \underbrace{\bE\left[\sum_{t=1}^T \ind(k_t=k)\ind(\cG_t)\right]}_{\cB_{T,k}} \;.
+\end{align*}
+
+This upper bound separates the regret due to the oracle ($\cO_{T,k}$) and the regret due to the base bandit ($\cB_{T,k}$). We now further upper bound these two terms separately.
+
+\paragraph{Upper bounding $\cO_{T, k}$} The regret due to the oracle can be upper bounded very similarly as the term $V_1$ of the fair regret (see previous section). Indeed, we can re-write $\cO_{T,k}$ as 
+\[\cO_{T,k} =\bE\left[\sum_{t=1}^T \frac{\lambda_k}{\mu_k}\left(\frac{\mu_k-\wt \mu_{k, t}}{\wt \mu_{k, t}} \wedge 1 \right) \ind(\cG_t)\right] \;.  \]
+
+Under $\cG_T$, the probability proposed by the UCB oracle satisfies $\wt \mu_{k, t}\geq \mu_k$, so $\cO_{T,k}=0$. For the two other policies it is easy to verify that 
+\[ \cO_{T,k} \leq \bE\left[\sum_{t=1}^T \frac{\lambda_k}{\mu_k}\left(\frac{\UCB_{k, t}- \LCB_{k, t}}{\LCB_{k, t}}\wedge 1\right) \ind(\cG_t)\right].\]
+We denote by $t_k$ the time from which $\LCB_{k,t}\geq \frac{\mu_k}{2}$ if $N_k(t)\geq \frac{\alpha_k t}{2}$. It holds directly that 
+\[\cO_{T,k} \leq \frac{\lambda_k}{\mu_k} \left(t_k + \frac{2}{\mu_k}\bE\left[\sum_{t=t_k}^T (\UCB_{k, t}- \LCB_{k, t}) \ind(\cG_T)\right] \right) \;. \]
+
+As before, we can be more specific for Hoeffding-based confidence bounds, and obtain $t_k=\cO\left(\frac{4}{\alpha_k \mu_k^2}\log\left(\frac{4}{\alpha_k \mu_k^2}\right)\right)$, and that $(\UCB_{k, t}- \LCB_{k, t}) \ind(\cG_T) \leq 2\sqrt{\frac{\log(t)}{\alpha_k t}}$. This provides the following explicit bound, 
+\[ \cO_{T,k} \leq 2p_k^\star\sqrt{\frac{T\log(T)}{\alpha_k}}  \;. \]
+
+\paragraph{Upper bounding $\cB_{T, k}$} \textcolor{blue}{I continue the proof for a UCB algorithm, the proof is actually straightforward for optimistic algorithms since the best arm is represented by its UCB. For other policies the analysis would be more involved: we would need to make sure that the best arm is sampled enough to have a good mean, so that the algorithm is well-performing. We would surely need for instance that the probability of playing the bandit is large enough (e.g larger than $\rho_\lambda/2$), and we would get in that case a factor $2/\rho_\lambda$ in front of the upper bound of the second-order term of the standard bandit regret.\\
+Adapt the message in the main text depending on what we find.}
+
+We consider a UCB base bandit, that chooses $k_t = \argmax{} \UCB_{k, t}$. Even if the algorithm use observations that were not necessarily collecting because of its policy, the analysis can be fully conducted following the proof steps of any standard analysis of a UCB policy.  We first write that
+
+\begin{align*}
+\bE\left[\sum_{t=1}^T \ind(A_{t+1}=k, \UCB_{k, t}\geq \max_j \UCB_{j, t}, \cG_t)\right] & \leq \bE\left[\sum_{t=1}^T \ind(A_{t+1}=k, \UCB_{k, t}\geq \UCB_{1, t}, \cG_t)\right] \\
+& \leq \bE\left[\sum_{t=1}^T \ind(A_{t+1}=k, \UCB_{k, t}\geq \mu_1)\right] \;. \end{align*}
+
+Classically, we then use that for $N_k(t)\geq \frac{2C}{\Delta_k^2} \log(t)$ we have that $\UCB_{k, t}\geq \mu_1 \Rightarrow \wh \mu_{k, t} \geq \mu_k + \frac{\Delta_k}{2}$, so we can obtain that 
+
+\begin{align*}
+\bE\left[\sum_{t=1}^T \ind(A_{t+1}=k, \UCB_{k, t}\geq \mu_1)\right] &\leq \frac{2C}{\Delta_k^2} \log(T) + \sum_{n=\frac{2C}{\Delta_k^2} \log(T)}^T \bP\left(\wh \mu_{k, n}\geq \mu_k + \frac{\Delta_k}{2}\right) \\
+& \leq \frac{2C}{\Delta_k^2} \log(T) + \frac{2}{\Delta_k^2} \;.
+\end{align*}
+
+Note that this bound holds even if $\lambda_k=0$, and in that case it gives the expected result. 
+
+including cases where $\lambda_i = 0$ is allowed for any arm $i \in [K]$. In this case, our analysis matches the standard analysis of UCB1 and we obtain the folklore results of $\cO(\log(T))$ problem-dependent bound and $\cO(\sqrt{T\log(T)})$ worst-case bound.
+
+Interestingly, if $\lambda_k>0$ we can provide an alternative upper bound, that provides a constant problem-dependent regret. Indeed, we recall that under $\cG_t$ it holds that $N_k(t)\geq \alpha_k \frac{t}{2}$, and so the first term can in fact be replaced by $\frac{2C}{\Delta_k^2}\log(T)\wedge t_k^0$, where $t_k^0$ is defined as follows,
+\[t_k^0 = \inf\{t\in \N: \; \frac{\alpha_k}{2}t\leq \frac{2C}{\Delta_k^2} \log(t) \}= \cO\left(\frac{4C}{\alpha_k \Delta_k^2}\log\left(\frac{4C}{\alpha_k\Delta_k^2}\right)\right)\;.\]
+
+Hence, in all generality we finally obtain that 
+\begin{align*}
+\bE\left[\sum_{t=1}^T \ind(A_{t+1}=k, \UCB_{k, t}\geq \mu_1, \cG_t)\right] &\leq t_k^0 \wedge  \frac{2C}{\Delta_k^2}\log(T) + \frac{2}{\Delta_k^2} \;.
+\end{align*}
+
+Hence, if $\lambda_k>0$, the base bandit only adds a problem-dependent constant to $\cS_{T,k}$, however the worst-case bound remains the one of UCB, namely $\cO(\sqrt{KT\log(T)})$.
+
+\paragraph{Summary} We recall that $\cR_{T,k}\leq \sum_{t=1}^T \bP(\bar \cG_t)+\cO_{T, k}+ \cB_{T,k}$, where the terms are defined above. For clarity, we define 
+\[R_{T,k} =  K \sum_{t=1}^{+\infty} \frac{1}{t^2} + \sum_{j=2}^K\frac{1}{\kl\left(\frac{\alpha_j}{2}, \alpha_j\right)} \]
+
+\begin{itemize}
+	\item For the UCB oracle, it holds that 
+	\[\cR_{T,k}^\text{\UCB} \leq \sum_{k: \Delta_k>0}\left((1-p_k^\star)\left(K \sum_{t=1}^{+\infty} \frac{1}{t^2} + \sum_{j=2}^K\frac{1}{\kl\left(\frac{\alpha_j}{2}, \alpha_j\right)}\right) + t_k^0 \wedge  \frac{2C}{\Delta_k^2}\log(T) + \frac{2}{\Delta_k^2} \right)\Delta_k \;. \]
+	\item For the LCB and greedy oracles it holds that 
+	\[ \cR_{T,k}^{\texttt{Greedy}/\LCB} \leq \cR_{T,k}^\UCB + \sum_{k:\Delta_k>0} 2p_k^\star\sqrt{\frac{T\log(T)}{\alpha_k}} \Delta_k +  \cO\left(\max_j\frac{2}{\alpha_j(\rho_\lambda \mu_j)^2}\log\left(\frac{2}{\alpha_j(\rho_\lambda \mu_j)^2}\right) \sum_{k} \Delta_k\right)
+	\]
+\end{itemize}
+
+
+
+\begin{remark}[Negative problem-dependent bound] 
+	
+	It is easy to see that if we take for instance $2C$ in the confidence bound then the only change in the above analysis are (1) the logarithmic term is doubled, (2) $p_{k, t}-p_k^\star\leq \frac{\lambda_k}{\mu_k+\sqrt{C\frac{\log(t)}{N_k(t)}}}-\frac{\lambda_k}{\mu_k}\leq \frac{\lambda_k}{\mu_k+\sqrt{\frac{C_\alpha}{t}}}-\frac{\lambda_k}{\mu_k}$ for $C_\alpha=\frac{2C}{\alpha_k}$. We obtain that
+	\[\bE\left[\sum_{t=1}^T(p_{k,t}-p_k^\star)\ind(\cG_t)\right] \leq \sum_{t=1}^T \frac{\lambda_k}{\mu_k+\sqrt{\frac{C_\alpha}{t}}}-\frac{\lambda_k}{\mu_k} = -\Omega\left(-\frac{\lambda_k}{\mu_k^2}\sqrt{C_\alpha T}\right)\;,
+	\]
+	
+	If we again consider the highly probable event $N_k(t)\geq \alpha_k t/2$, we then have that the term that we upper bounded by $0$ now becomes $-\Omega(\sqrt{T})$. This gives a negative problem-dependent regret asymptotically.
+\end{remark}
+
+
+\begin{remark}[Scaling of the bounds in $\alpha_k$] 
+	This is maybe the major weakness in our results, but getting finer bounds may require a much more involved analysis. I could be avoided by using a forced exploration, but this would have an impact on other terms. In particular we would have greater scaling than $\sqrt{T}$ (e.g. $T^{3/4}$ if the forced exploration is $\sqrt{t}$, multiplicative polylog if polylog, \dots). 
+\end{remark}
+
+\paragraph{Conclusion of this part} There is no overall winner among the three oracles: LCB is good for the fair regret while UCB is good if minimizing the bandit regret is preferred; while greedy performs similarly as the worst of the two in both cases, up to a factor $1/2$ in the first order term (we did not precise this). However, it is not exactly symmetric, since UCB is better to guarantee with high probability that the first proposition of the oracle is feasible.

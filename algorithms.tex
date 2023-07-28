@@ -1,0 +1,26 @@
+\section{Proposed framework}
+
+We propose the following framework to tackle the fair bandits problem, keeping a general formulation to encompass all the algorithms proposed in this paper. It relies on two ingredients: a \emph{fair oracle}, that proposes an allocation $(\wh q_{k,t})_{k\in [K]}$ that aims at approaching $(q_k^\star)$, and a \emph{base bandit}, that handles the exploration/exploitation in a more usual way. At each time step $t$, our \emph{Fair-MAB} framework performs the following steps:
+
+\begin{enumerate}
+\item The fair oracle proposes an allocation $(\wh q_{k,t})_{k\in [K]}$ satisfying $\sum_k \wh q_{k, t}\leq1$.
+\item The base bandit proposes an arm $k_t$.
+\item Fair MAB selects arm $k$ with probability $p_{k, t}= \wh q_{k,t} + \ind(k_t=k)(1-\sum_{j \in [K]}\wh q_{t,j})$.
+\end{enumerate}
+
+\paragraph{Base bandit} Intuitively, if it is guaranteed that $\wh q_{k, t} \rightarrow q_k^\star$ then the fairness constraints will all be satisfied. The objective is then to allocate the remaining mass $1-\sum_k q_k^\star$ to the best arm in order to minimize the bandit regret. To reach this goal, it is natural to assign this task to a standard bandit algorithm. We remark that when $\max_{k \in [K]} \lambda_k= 0$, Fair-MAB simply follows the recommendation of the base bandit at each time step, and hence naturally interpolates the standard setting and the fair setting. The base bandit can be chosen among any standard policy like UCB1 \citep{auer2002finite}, TS \citep{TS_1933, TS12AG}, KL-UCB \citep{KL_UCB} or MED \citep{honda11MED, baudry2023general}. %Furthermore, even if $\lambda_j>0$ for each arm $j$ this standard bandit exploration may be interesting to minimize the regret. 
+
+\paragraph{Fair oracle} For simplicity, let us assume that the problem is feasible. We can consider several variants, that can all be expressed as follows: let $\wt \mu_{k,t}$ be an estimation of the mean of arm $k$ given its past observations, define $\wh q_{k,t}= \frac{\lambda_k}{\wt \mu_{k, t}}$. If $(\wh q_{k, t})_{k \in [K]}$ is a feasible allocation then it is returned by the fair oracle, otherwise it returns $(K^{-1})_{k \in [K]}$ (uniform allocation). The choice of $\wt \mu_{k,t}$ may reflect a preference towards the fair regret and the bandit regret, the candidates that we consider in this paper are:
+\begin{itemize}
+	\item Greedy: $\wt \mu_{k, t} = \wh \mu_{k, t} \coloneqq \frac{1}{N_k(t)}\sum_{s=1}^t r_s\ind(A_s=k)$, no preference.
+	\item UCB: $\wt \mu_{k, t} = \UCB_{k, t}(\delta)$, where $\UCB_{k, t}(\delta)$ satisfies $\bP\left(\UCB_{k, t}(\delta) \geq \mu_k\right) \geq 1-\delta$, preference for low bandit regret (under-estimation of $q_k^\star$).
+	\item LCB: $\wt \mu_{k, t} = \LCB_{k, t}(\delta)$, where $\LCB_{k, t}(\delta)$ satisfies $\bP\left(\LCB_{k, t}(\delta) \leq \mu_k\right) \geq 1-\delta$, preference for low fair regret (over-estimation of $q_k^\star$).
+\end{itemize}
+
+Furthermore, we assume that if a range $[0, \mu^+]$ on the expectations is known all estimates are clipped into this interval. In this paper, we will focus on these three oracle strategies. Interestingly, the UCB one will be simpler to analyze, even in the case where the feasibility gap $\rho_\lambda$ is $0$. In section XX we also analyze the greedy and LCB variants, under the additional assumption that $\rho_\lambda>0$. Furthermore, the upper bounds on their regret will depend inversely on $\rho_\lambda$.
+
+
+\paragraph{Sampling probability} Using the notation above, the sampling probability of each arm $k \in [K]$ satisfies 
+\begin{equation}\label{eq::sampling_prob} p_{k,t} = \wh q_{k, t} + \left(1-\sum_{j=1}^K \wh q_{j, t}\right) \bP(k_t=k | \cH_{t-1}) \;. \end{equation}
+
+Furthermore, the fact that it is a sum of two terms allows to separate the regret into a term due to the oracle and a term due to the base bandit.  
