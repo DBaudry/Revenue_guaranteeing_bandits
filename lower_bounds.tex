@@ -1,0 +1,11 @@
+\section{Lower bounds}
+
+Trivial remark: since the standard MAB is a subcase all the usual lower bounds still hold. In the feasible case $\rho_\lambda>1$ one cannot hope to do better than the $\sqrt{(K-1)T}$, because the best arm has to be discovered in order to allocate the remaining mass appropriately.
+
+\paragraph{Intuitions} Assume $\forall j, \lambda_j >0$. For some $k$, we may try find lower bound on $|\sum_{t=1}^T (x_{k, t}-x_k^\star)|$, since we saw that it is possible to make one of the two regrets negative but in all of our results we get $\cO(\sqrt{T\log(T)})$ on this quantity. 
+
+We can design hard problems, e.g. with $2$ arms, $(\lambda_1, \mu_1)=0, 1$, while  $(\lambda_2, \mu_2)=(\epsilon, 2\epsilon)$. A problem with $(\lambda_2, \mu_2)=(\epsilon, 3\epsilon)$ or $(\lambda_2, \mu_2)=(\epsilon, \epsilon)$ leads to a very different optimal allocation ($x_2^\star=1/2$, $1/3$ and $1$ respectively). $\epsilon=1/T$ is too small to distinguish in which setting we are, we have linear regret. This hints that for non vacuous bounds we need to consider $\lambda$ as fixed and independent of $T$.
+
+In that case, we can obtain with standard tools a lower bound of order $\left(\frac{\lambda_k}{\mu_k^2}\sqrt{T} \right)$, which is what we expect since it is the scaling of $\left|\frac{\lambda_k}{\mu_k}-\frac{\lambda_k}{\mu_k+\cO(T^{-1/2})}\right|$. \textcolor{blue}{Write this formally}. If we consider this result, the optimality ratio of our bounds is $\sqrt{\frac{\log(T)}{\alpha_k}}=\sqrt{\frac{\log(T)\mu^+}{\lambda_k}}$.
+
+Note that this bound is a minimax bound if we consider $(\lambda_k)_{k \in [K]}$ as constants. Indeed, we proved that in the feasible case it holds that $\mu_k \geq \frac{\lambda_k}{1- \sum_{i\neq k} \lambda_i}$, so we can also write the lower bound as $\Omega\left(\frac{(1- \sum_{i\neq k} \lambda_i)^2}{\lambda_k} \sqrt{T}\right)$.

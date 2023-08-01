@@ -2,27 +2,35 @@
 
 \textcolor{blue}{The following setting is exactly the setting of Vianney's "bandits with covariates" paper.}
 
-We now consider a settings where at each time step $t$ a context $X_t$ is presented to the learner (think user type), there are still $K$ arms (think ad types) and there exists a mapping between the context and the expectation of the reward for each arm $X \mapsto \mu_k(X)$. Example: linear with $\mu_k(X)=\theta_k^T X$ for some $\theta_k \in \R^d$, or generalized linear with $\mu_k(X)=g(\theta_k^T X)$ for some $\theta_k \in \R^d$ and some link function $g$. The reward if arm $k$ is selected is then $r_t=\mu_k(X_t)+\eta_t$, for some zero-mean noise $\eta_t$. We further assume a known distribution over contexts. To simplify, in the following we assume a discrete set of contexts $\cX=(X_1,\dots, X_J) \subset \R^d$ for some $J\in \N$. Hence, for all $j \in J$ we now $p_j = \bP(X_t=X_j)$.
+We now consider a settings where at each time step $t$ a context $X_t$ is presented to the learner (think user type), there are still $K$ arms (think ad types) and there exists a mapping between the context and the expectation of the reward for each arm $X \mapsto \mu_k(X)$. Example: linear with $\mu_k(X)=\theta_k^T X$ for some $\theta_k \in \R^d$, or generalized linear with $\mu_k(X)=g(\theta_k^T X)$ for some $\theta_k \in \R^d$ and some link function $g$. The reward if arm $k$ is selected is then $r_t=\mu_k(X_t)+\eta_t$, for some zero-mean noise $\eta_t$. We further assume a known distribution over contexts. To simplify, in the following we assume a discrete set of contexts $\cX=(X_1,\dots, X_J) \subset \R^d$ for some $J\in \N$. Hence, for all $j \in J$ we now define $q_j = \bP(X_t=X_j)$.
 
-In this setting, the notion of fairness can be naturally adapted: we want to guarantee a minimum expected revenue for every action (advertiser). We consider a randomized policy that, for each $j \in [J]$, samples an arm $k$ with probability $x_{k, j}(t) = \bP(A_t=k|X_t=j, \cF_{t-1})$. Given $\lambda_1, \dots, \lambda_K$, our objective is to guarantees that 
+In this setting, the notion of fairness can be naturally adapted: we want to guarantee a minimum expected revenue for every action (advertiser). We consider a randomized policy that, for each $j \in [J]$, samples an arm $k$ with probability $p_{k, j}(t) = \bP(A_t=k|X_t=j, \cF_{t-1})$. Given $\lambda_1, \dots, \lambda_K$, our objective is to guarantees that 
 \begin{align*}
-&\forall k \in [K]\;, \; \liminf \frac{1}{T}\bE\left[\sum_{t=1}^T \sum_{k=1}^K x_{k,X_t}(t)\mu_{k, X_t}\right] \geq \lambda_k\\ \Rightarrow &\forall k \in [K]\;, \; \liminf \frac{1}{T}\bE\left[\sum_{t=1}^T \sum_{j=1}^J p_j \sum_{k=1}^K x_{k,j}(t)\mu_{k, j}\right] \geq \lambda_k . \end{align*}
+&\forall k \in [K]\;, \; \liminf \frac{1}{T}\bE\left[\sum_{t=1}^T \sum_{k=1}^K p_{k,X_t}(t)\mu_{k, X_t}\right] \geq \lambda_k\\ \Rightarrow &\forall k \in [K]\;, \; \liminf \frac{1}{T}\bE\left[\sum_{t=1}^T \sum_{j=1}^J q_j \sum_{k=1}^K p_{k,j}(t)\mu_{k, j}\right] \geq \lambda_k . \end{align*}
 
 \paragraph{Characterizing an optimal policy} Contrarily to the standard multi-armed case that we studied before, here it is not easy to determine what an optimal algorithm should do. We recall that in our previous setting the best thing to do was to make $x_k(t)$ converge to $\frac{\lambda_k}{\mu_k}$ for all arms, and allocate the remaining total probability among the optimal arms. Here, the regret becomes 
-\[\cR_T = \bE\left[\sum_{t=1}^T \sum_{j=1}^J p_j \sum_{k=1}^K x_{k,j}(t)\Delta_{k,j}\right]\;, \]
+\[\cR_T = \bE\left[\sum_{t=1}^T \sum_{j=1}^J q_j \sum_{k=1}^K p_{k,j}(t)\Delta_{k,j}\right]\;, \]
 where $\Delta_{k, j}=\max_{l} \mu_{l, j} - \mu_{k,j}$. A trivial case is when each of the $K$ arms is the only optimal arm for a sufficient (weighted) number of contexts: if $\forall k \in [K], \;\sum_{j=1}^J p_j \mu_{k,j} \ind(\Delta_{k,j}=0)\geq \lambda_k$, then the best policy simply consists in playing the best arm corresponding to the given context. On the other hand, the opposite case (one arm is optimal for all contexts) may be intuitively the most difficult. In order to find a deterministic optimal (oracle) policy, we only need to consider a single step. Formally, this policy should be the solution of 
 \begin{align*}
-\inf_{(x_{k,j})_{k \in [K], j \in [J]}} \quad & \sum_{j=1}^J  \sum_{k=1}^K x_{k,j}\times  p_j\Delta_{k, j}\\
-\textrm{s.t.} \quad & \forall k \in [K]: \; \sum_{j=1}^J x_{k,j} \times p_j \mu_{k, j} \geq \lambda_k\\
-& \forall j \in [J], \; \sum_{k=1}^K x_{k,j} =1 \\
-& \forall k \in [K], j \in [J]: \; x_{k,j} \geq 0 \;.
+\inf_{(p_{k,j})_{k \in [K], j \in [J]}} \quad & \sum_{j=1}^J  \sum_{k=1}^K p_{k,j}\times  q_j\Delta_{k, j}\\
+\textrm{s.t.} \quad & \forall k \in [K]: \; \sum_{j=1}^J p_{k,j} \times q_j \mu_{k, j} \geq \lambda_k\\
+& \forall j \in [J], \; \sum_{k=1}^K p_{k,j} =1 \\
+& \forall k \in [K], j \in [J]: \; p_{k,j} \geq 0 \;.
 \end{align*}
 
 This is a typical linear program.
 
-\paragraph{Natural algorithm for this:} Solve the LP by plugging UCBs of the means/gaps, similar to what we did before.
+\paragraph{Natural algorithm for this:} Solve the LP by plugging any estimate of the means in a confidence set $\cC_t$, similar to what we did before. This gives the oracle allocation, we then still use a bandit to complete. 
 
-\textcolor{blue}{Had another meeting with Vianney, he's quite hyped by this problem actually. Look at both the literature on contextual MAB and at the literature on sensitivity of the solution of optimization problems.\\
+Main problem: sufficient sampling to get correct estimate. Example of the worst case: the setting is completely un-structured, and each context is a $K$-armed bandits. Due to a mis-estimation, the oracle may commit arms to wrong contexts. Let us take $2$ arms and $2$ contexts. Assume that arm $1$ is always best, and that the means are large enough so that the optimal allocation consists in sampling arm $2$ linearly only in context $2$. If its mean is under-estimated in this context, we will sample it at a "bandit rate" until it gets better estimated. If the gap with arm $1$ is large this may take a very long time. Roughly, the bandit only cares about deciding that $\mu_{2,2}\leq \mu_{1, 2} $ (means of both arms in context $2$), but here the point (assuming that $\lambda,q$s are equal) is also to determine if $\mu_{2,2}\leq \mu_{2,1}$ (means of arm $2$ in the $2$ contexts) or not. We see that the notion of "intra-arm" gap appears.
+
+\textcolor{red}{We may need a smart way to explore the confidence set.}
+
+For instance, give a confidence set $\cC_t$ and a context $X_t$. For an arm $k$, I may want to use $\theta \in \cC_t$ that maximize $p_{k,t}$. Problem: there may be a different $\theta_k$ for each arm $k$. In that case, we may simply sample uniformly at random a parameter in $(\theta_k)_{k \in [K]}$ and follow its oracle.
+
+If the diameter of $\cC_t$ is of order $t^{-\alpha}$ for some $\alpha>0$ we are sure to avoid too large mis-estimation, ensuring that the response of the LP is stable we may end up sufficiently close to $p^\star$. 
+
+\textcolor{blue}{Look at both the literature on contextual MAB and at the literature on sensitivity of the solution of optimization problems.\\
 Also, for this case the constraint without $\mu_{k,j}$ is already hard and may be a first start (since the contraints become independent of $\mu$ it may be easier)\\
 In the MAB case: clearly exhibit the tradeoffs between constraint regret and regret.\\
 During the meeting we also took a long time investigating the adversarial MAB case, it seems that linear regret may be un-avoidable in some cases (I need to write details).}

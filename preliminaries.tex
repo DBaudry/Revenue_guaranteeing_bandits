@@ -25,7 +25,7 @@ There is a natural trade-off between $\cR_T$ and $\cV_t$. For instance, an unfai
 
 \paragraph{Feasibility} It is clear that for any optimal allocation $p^\star$ and arm $k$ it holds that $p_k^\star\geq q_k^\star \coloneqq \frac{\lambda_k}{\mu_k}$, with equality if $k$ is sub-optimal. If this allocation is possible (i.e $\sum_k q_k^\star\leq 1$) we say that the problem is \emph{feasible}, otherwise we call it \emph{in-feasible}. We verify easily that 
 \[\text{Fair MAB is feasible } \Longleftrightarrow \sum_{k=1}^K \frac{\lambda_k}{\mu_k}\leq 1. \]
-In this paper, we will generally assume that the learner is guaranteed that the problem is feasible, which gives some information on the arms: if the arms satisfy $\max \mu_k \leq 1$, we have for instance that for any arm $k$ satisfying $\lambda_k>0$ it both holds that $p_k^\star>\lambda_k$ and $\mu_k \geq \frac{\lambda_k}{1-\sum_{i=1}^K \lambda_i}$. 
+In this paper, we will generally assume that the learner is guaranteed that the problem is feasible, which gives some information on the arms: if the arms satisfy $\max \mu_k \leq 1$, we have for instance that for any arm $k$ satisfying $\lambda_k>0$ it both holds that $p_k^\star>\lambda_k$ and $\mu_k \geq \frac{\lambda_k}{1-\sum_{i\neq k}^K \lambda_i}$. 
 
 However, we can also imagine a scenario where the feasibility cannot be guaranteed beforehand. In that case, we assume that the learner will try to adjust her policy in order to target the ``closest'' feasible instance to the initial objective, that we denote by $p_k^{\star, \text{UF}}$ and define by  
 \[p_k^{\star, \text{UF}}= \frac{\frac{\lambda_k}{\mu_k}}{\sum_{j=1}^K\frac{\lambda_j}{\mu_j}}.\]
