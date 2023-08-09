@@ -30,11 +30,20 @@ We first write that
 \leq  \underbrace{\bE\left[\sum_{t=1}^T \left(\lambda_k-\wh q_{k,t} \mu_k \right) \ind(\cG_t)\right]}_{V_1} + \underbrace{\bE\left[\sum_{t=1}^T \left(\lambda_k-p_{k, t} \mu_k \right) \ind(\bar \cG_t)\right]}_{V_2} \;. \\
 \end{align*}
 
+
 \paragraph{Upper bounding $V_1$} We first re-write $V_1$ as a function of $\wt \mu_{k, t}$ under $\cG_t$, 
 \begin{align*}
 V_1 & = \bE\left[\sum_{t=1}^T \left(\lambda_k- \frac{\lambda_k}{\wt \mu_{k, t}} \mu_k \right) \ind(\cG_t)\right] \\
 & = \lambda_k \bE\left[\sum_{t=1}^T \left(\frac{\wt \mu_{k,t}-\mu_k}{\wt \mu_{k,t}}\right) \ind(\cG_t)\right]\;.
 \end{align*}
+
+\hr{Remark: in the Greedy case you have:
+\begin{align*}
+V_1 &= \lambda_k \bE\left[\sum_{t=1}^T \left(\frac{\wt \mu_{k,t}-\mu_k}{\wt \mu_{k,t}}\right) \ind(\cG_t)\right] \\
+&\leq \lambda_k \bE\left[\sum_{t=1}^T \left(1 - \frac{\mu_k}{\wh \mu_{k,t}}\right)\right] \\
+&\leq \lambda_k \sum_{t=1}^T \left(1 - \frac{\mu_k}{\bE \left[\wh \mu_{k,t} \right]}\right) = 0
+\end{align*}
+}
 
 Then, we remark that for the LCB allocation it simply holds that $V_1\leq 0$ since $\mu_k\geq \wt \mu_{k,t}$. Let us now consider the UCB allocation, under $\cG_t$ the term inside the expectation is non-negative and satisfies 
 \[\frac{\wt \mu_{k,t}^{\UCB}-\mu_k}{\wt \mu_{k,t}^{\UCB}} \leq \frac{\UCB_{k,t}-\mu_k}{\mu_k} \leq \frac{\UCB_{k,t}-\LCB_{k, t}}{\mu_k} \;. \]
@@ -51,6 +60,7 @@ that we will use later in our analysis. For now, we simply use that this tuning 
 again using that under $\cG_t$ it holds that $N_k(t)\geq \frac{\alpha_k}{2}t$. Plugging this into the upper bound on $V_1$, we obtain for the Greedy and UCB allocations that 
 
 \[V_1 \leq \frac{\lambda_k}{\mu_k} \sum_{t=1}^T 2 \sqrt{\frac{C\log(t)}{\alpha_k t}} \leq 2\frac{\lambda_k}{\mu_k}\sqrt{\frac{CT\log(T)}{\alpha_k}}\;. \] 
+
 
 \paragraph{Upper bounding $V_2$} A union bound provides that 
 \begin{align*}
