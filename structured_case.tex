@@ -12,7 +12,7 @@ In this setting, the notion of fairness can be naturally adapted: we want to gua
 \[\cR_T = \bE\left[\sum_{t=1}^T \sum_{j=1}^J q_j \sum_{k=1}^K p_{k,j}(t)\Delta_{k,j}\right]\;, \]
 where $\Delta_{k, j}=\max_{l} \mu_{l, j} - \mu_{k,j}$. A trivial case is when each of the $K$ arms is the only optimal arm for a sufficient (weighted) number of contexts: if $\forall k \in [K], \;\sum_{j=1}^J p_j \mu_{k,j} \ind(\Delta_{k,j}=0)\geq \lambda_k$, then the best policy simply consists in playing the best arm corresponding to the given context. On the other hand, the opposite case (one arm is optimal for all contexts) may be intuitively the most difficult. In order to find a deterministic optimal (oracle) policy, we only need to consider a single step. Formally, this policy should be the solution of 
 \begin{align*}
-\inf_{(p_{k,j})_{k \in [K], j \in [J]}} \quad & \sum_{j=1}^J  \sum_{k=1}^K p_{k,j}\times  q_j\Delta_{k, j}\\
+\text{LP}(\mu)= \inf_{(p_{k,j})_{k \in [K], j \in [J]}} \quad & \sum_{j=1}^J  \sum_{k=1}^K p_{k,j}\times  q_j\Delta_{k, j}\\
 \textrm{s.t.} \quad & \forall k \in [K]: \; \sum_{j=1}^J p_{k,j} \times q_j \mu_{k, j} \geq \lambda_k\\
 & \forall j \in [J], \; \sum_{k=1}^K p_{k,j} =1 \\
 & \forall k \in [K], j \in [J]: \; p_{k,j} \geq 0 \;.
@@ -20,7 +20,7 @@ where $\Delta_{k, j}=\max_{l} \mu_{l, j} - \mu_{k,j}$. A trivial case is when ea
 
 This is a typical linear program.
 
-\paragraph{Natural algorithm for this:} Solve the LP by plugging any estimate of the means in a confidence set $\cC_t$, similar to what we did before. This gives the oracle allocation, we then still use a bandit to complete. 
+\paragraph{First ideas} Solve the LP by plugging any estimate of the means in a confidence set $\cC_t$, similar to what we did before. This gives the oracle allocation, we then still use a bandit to complete. 
 
 Main problem: sufficient sampling to get correct estimate. Example of the worst case: the setting is completely un-structured, and each context is a $K$-armed bandits. Due to a mis-estimation, the oracle may commit arms to wrong contexts. Let us take $2$ arms and $2$ contexts. Assume that arm $1$ is always best, and that the means are large enough so that the optimal allocation consists in sampling arm $2$ linearly only in context $2$. If its mean is under-estimated in this context, we will sample it at a "bandit rate" until it gets better estimated. If the gap with arm $1$ is large this may take a very long time. Roughly, the bandit only cares about deciding that $\mu_{2,2}\leq \mu_{1, 2} $ (means of both arms in context $2$), but here the point (assuming that $\lambda,q$s are equal) is also to determine if $\mu_{2,2}\leq \mu_{2,1}$ (means of arm $2$ in the $2$ contexts) or not. We see that the notion of "intra-arm" gap appears.
 
@@ -34,3 +34,48 @@ If the diameter of $\cC_t$ is of order $t^{-\alpha}$ for some $\alpha>0$ we are 
 Also, for this case the constraint without $\mu_{k,j}$ is already hard and may be a first start (since the contraints become independent of $\mu$ it may be easier)\\
 In the MAB case: clearly exhibit the tradeoffs between constraint regret and regret.\\
 During the meeting we also took a long time investigating the adversarial MAB case, it seems that linear regret may be un-avoidable in some cases (I need to write details).}
+
+Idea: the fair algorithm assumes that each arm follows their LCB for the current context, but follows their UCB in all the other contexts.
+
+
+\subsection{More precise ideas}
+
+At each time step $t$ a context $X_t$ is revealed to the learner. In order to adapt the Fair-MAB algorithm, we just need to find a good fair algorithm. If the means $\mu=(\mu_{k, j})_{k \in [K], j \in [J]}$ were known, solving the LP would provide an optimal fair allocation in the set $\cQ^\star=\argmax{q \in (\triangle_K)^J}\; \text{LP}(\mu)$. The main question of this part is to determine how to propose a fair allocations with estimates of the unknown means. We assume that the learner can compute a confidence set $\cC_t$ for the mean estimates $\mu$. If there is no structure the set can be computed as follows,
+\[\cC_t = \cup_{j \in J} \cup_{k \in [K]} [\LCB_{k, j, t}, \UCB_{k, j, t}]\;, \]
+where for any $(k, j)\in [K]\times [J]$, $[\LCB_{k, j, t}, \UCB_{k, j, t}]$ is a confidence interval for $\mu_{k, j}$. Let us consider another example with the contextual linear setting. We assume that each context is associated to a feature vector $X_j \in \R^d$ for some $d\in \N$ and that the means are $\mu_{k,j}=\theta_k^\top X_j$. In that case, we can first compute a confidence interval $\Theta_{k, t}$ for each parameter $\theta_k$, and then $\cC_t$ is defined as 
+\[\cC_t = \cup_{k \in [K]} \left\{\cup{j \in [J]}\left\{ \wt \theta_k^\top X_j \right\} \text{ for } \wt \theta_k \in \Theta_{k,t}\right\} \;. \]
+
+\paragraph{Optimistic allocations} In standard MAB, we proved that it was possible to trade-off between the bandit regret and the fair regret. We can expect that it may be possible to do the same in this more general setting, depending of which parameter we choose to follow in $\cC_t$. We first introduce the set of reasonable allocations, namely the fair allocations that ``correspond'' to a parameter in the confidence set,
+\[\cQ_t = \cup_{\mu \in \cC_t} \argmax{} \; \text{LP}_t(\mu) \subset (\triangle_{K})^J \;, \]
+where $\text{LP}_t(\mu)$ is a short-hand notation to call the LP corresponding to a parameter $\mu \in \R^{KJ}$. Using this set, we propose the following step, assuming that the $j$-th context is drawn:
+\begin{enumerate}
+	\item For each arm $k$, find an allocation $q_k \in \cQ_t$ that maximizes the probability that $k$ is pulled, $q_k\in \argmax{q \in \cQ_t} q_{k,t}$. Hence, we pre-select a sub-sample of allocations $(q_1, \dots, q_K)\in (\triangle_K)^K$ 
+	\item The fair algorithm draws an allocation uniformly at random, $p\sim \cU(\{q_1,\dots, q_K \})$.
+\end{enumerate}
+
+This idea is quite simple, but it has good properties that may make it work: 
+\begin{itemize}
+	\item If the true parameter is in the confidence set, $\mu^\star \in \cC_t$, then the set of optimal allocations belong to $\cQ_t$. Hence, our choice guarantees that $p_{k,j,t}\geq p_{k,j}^\star/K$.
+	\item If the diameter of the confidence set $\cC_t$ decreases fast enough we may have that $\cQ_t \to \cQ^\star$ the set of optimal allocations, we may recover the same kind of guarantees as before.
+\end{itemize}
+
+\begin{remark}[Adapting this idea for $K$-armed bandits]
+	The idea of finding the feasible allocation giving the maximum probability for a specific arm is actually interesting for $K$-armed bandits too. For instance, for arm $k$ it may fix each arm $j\neq k$ to $\wh q_{j,t} = \frac{\lambda_j}{\UCB_{j,t}}\leq \frac{\lambda_j}{\mu_j}$. Under $\cG_t$ our scheme would give $\wh q_{k,t}\geq \frac{\lambda_k}{\mu_k}$, since the corresponding allocation would be feasible. It also holds that $\wh q_{k,t}\leq \frac{\lambda_k}{\LCB_{k,t}}$.
+	
+	This is interesting, because whatever the other allocations are, thanks to uniform sampling  we have that 
+	\[p_{k,t} \in \left[\frac{\lambda_k}{K\mu_k}, \frac{\lambda_k}{\LCB_{k,t}} \right]\;. \]
+	Interestingly, the lower bound do not depend on $t$ so we could adapt our proofs with $\alpha_k=\frac{\lambda_k}{K\mu_k}$, and for instance with $\sum_{s=t}\ind(\mu \in \cC_s)\geq t/2$.
+\end{remark}
+
+\paragraph{Proof ideas} The core of the algorithm is to use a confidence sets such that $\sum_{t=1}^T \bP(\mu \notin \cC_t)$ converges. We can use the following good event in the proof, \[\{\mu \in \cC_t, \forall (k,j) \in [K]\times [J]: \; N_{k,j}(t)  \geq \alpha_{k,j} t \},\] where $N_{k,j}(t)$ is the number of pulls of arm $k$ in context $j$ and $\alpha_{k, j}$ is tuned so that $\sum_{k=1}^K \sum_{j=1}^J \sum_{t=1}^T \bP(N_{k,j}(t)\leq \alpha_{k,j}t)$ converges. We can use for instance "with high probability $\mu\in \cC_s$ was true for at least $t/2$ steps", "among these steps contexts $j$ appeared for at least fraction $p_j/2$ with high prob." In the remainder we have now $p_jt/4$ steps for $p_{k,s}\geq \frac{\lambda_k}{K\mu_k}$ was true, so  $\alpha_{k,j}= \frac{p_j\lambda_k}{8K\mu_k}$ should be reasonable to make everything converge.
+
+Technically, $N_{k,j}(t)\geq \alpha_{k,j}t$ could be replaced by something else that would reflect the quantity of information collected. However, our proof holds even in the unstructured case.
+
+The main remaining ingredient is to define what happens when $\{\mu \in \cC_t, \forall k,j \; N_{k,j}(t)  \geq \alpha_{k,j} t\}$. We should prove that 
+\[\max_{q \in \cQ_t} \min_{p \in \cQ^\star} ||p-q ||_\infty = \cO(t^{-\alpha}), \]
+for some $\alpha \in (0, 1)$. In words, we want to say that all allocations in $\cQ_t$ are ``close'' to an optimal allocation. This is where we will need to prove that a small diameter for $\cC_t$ (for which we use $N_{k,j}(t)  \geq \alpha_{k,j} t$) and the fact that the true parameter is in $\cC_t$ translates to allocations that are close to optimal.
+
+Note: I skip in these explanations the regret of a UCB algorithm based on our confidence set $\cC_t$, it should not cause much difficulty in the proof.
+
+
+

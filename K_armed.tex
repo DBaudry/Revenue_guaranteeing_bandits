@@ -20,7 +20,7 @@ TO-DO:
 
 \subsection{Fair regret}
 
-Consider Fair-MAB with any allocation. We first propose a generic upper bound that works under the three allocations that we proposed. We recall that we assume that $\max_j \mu_j \leq \mu^+$ for a known constant $\mu^+$, and that the problem is feasible so $\forall j \in [K], \wh q_{j,t}  \geq \alpha_j$ for some $\alpha_j>0$. For a time step $t$, consider the event \[\cG_t=\left\{ \forall k \in [K]\;:\; \mu_k \in [\LCB_{k, t}, \UCB_{k, t}], N_k(t)\geq \frac{\alpha_k}{2}, \sum\frac{\lambda_j}{\wt \mu_{j,t}} \leq 1 \right\}\;,\]
+Consider Fair-MAB with any allocation. We first propose a generic upper bound that works under the three allocations that we proposed. We recall that we assume that $\max_j \mu_j \leq \mu^+$ for a known constant $\mu^+$, and that the problem is feasible so $\forall j \in [K], \wh q_{j,t}  \geq \alpha_j$ for some $\alpha_j>0$. For a time step $t$, consider the event \[\cG_t=\left\{ \forall k \in [K]\;:\; \mu_k \in [\LCB_{k, t}, \UCB_{k, t}], N_k(t)\geq \frac{\alpha_kt}{2}, \sum\frac{\lambda_j}{\wt \mu_{j,t}} \leq 1 \right\}\;,\]
  where we ommit the confidence levels in the notation for simplicity, but we will fix them later as a function of $t$. Consider an arm $k$, we want to upper bound $\cV_T^k \coloneqq \bE\left[\sum_{t=1}^T \left(\lambda_k-p_{k,t} \mu_k \right)\right]$.
  
 We first write that 
@@ -227,7 +227,16 @@ The only point that may be interesting is just that if we propose
 
 \subsection{Sufficient exploration without a upper bound on the means}
 
-We may change the event $\cG_t$ so that it contains $\{\forall k \in [K],\forall s \leq t\;, \mu_k \in [\LCB_{k,s}, \UCB_{k,s}] \}$ instead of $\{\forall k \in [K], \mu_k \in [\LCB_{k,t}, \UCB_{k,t}] \}$. We just need to increase the radius (tuned with $C$) of the bounds to make this event high probability (one more union bound of $t$ terms in the upper bound of the converse event). Let us consider the UCB allocation so that there normalization was never needed when $\cG_t$ holds.
+We may change the event $\cG_t$ so that it contains $\{\forall k \in [K],\forall s \leq t\;, \mu_k \in [\LCB_{k,s}, \UCB_{k,s}] \}$ instead of $\{\forall k \in [K], \mu_k \in [\LCB_{k,t}, \UCB_{k,t}] \}$. We just need to increase the radius (tuned with $C$) of the bounds to make this event high probability (one more union bound of $t$ terms in the upper bound of the converse event).
+\textcolor{blue}{I've been too fast on this, it is impossible because $\sum_{t=1}^T \bP(\exists s: \mu_k \notin [\LCB_{k,s}, \UCB_{k,s}])\geq T \bP(\mu_k \notin [\LCB_{k,1}, \UCB_{k,1}])$. We need  to know $T$ if we want this to hold, and tune the confidence bounds with $\log(T)$. In that case we can have
+\[\bE\left[\sum_{t=1}^T \ind(\exists s\in [t]: \mu_k \notin [\LCB_{k,s}, \UCB_{k,s}]) \right] \leq T \sum_{n=1}^T \bP(\mu_k \notin [\wh \LCB_{k,n}, \wh \UCB_{k,n}])\;, \]
+where the last term involves the value of the bounds when the sample size is $n$ (when this is fixed there is no more dependency in $s$). Tuning the bounds to get a confidence $T^{-2}$ is sufficient in our analysis.
+}
+\textcolor{red}{We need to determine if we prefer the bounded means assumption and anytime algorithms, or knowing $T$ and no assumption on the means.}
+
+\textcolor{blue}{Alternative that may work anytime: $\cG_t=\{\forall k \in [K], \mu_k \in [\LCB_{k,t}, \UCB_{k,t}] \}$, and consider $\sum_{t=1}^T\ind\left(\sum_{s=1}^t \ind(\bar \cG_s) \geq \frac{t}{2} \right)$. We can prove that this sum converges with Chernoff method, using that $\bP(\bar \cG_s)=\cO(s^{-2})$ for instance.}
+
+Let us consider the UCB allocation so that there normalization was never needed when $\cG_t$ holds.
 
 In that case, it holds that \[\forall k \in [K],\;\forall s \in [t],\; \wh q_{k,s} = \frac{\lambda_k}{\UCB_{k,s}} \geq \frac{\lambda_k}{\mu_k + 2 B_{k, s}} \;, \]
 
