@@ -1,5 +1,7 @@
 \section{Proposed framework}
 
+\hr{Link between $q^*$ and $p^*$ should be explained (but we understand)}
+
 We propose the following framework to tackle the fair bandits problem, keeping a general formulation to encompass all the algorithms proposed in this paper. It relies on two ingredients: a \emph{fair algorithm}, that proposes an allocation $(\wh q_{k,t})_{k\in [K]}$ that aims at approaching $(q_k^\star)$, called a \emph{fair allocation}, and a \emph{base bandit}, that handles the exploration/exploitation in a more usual way. At each time step $t$, our \emph{Fair-MAB} framework performs the following steps:
 
 \begin{enumerate}
@@ -8,10 +10,16 @@ We propose the following framework to tackle the fair bandits problem, keeping a
 \item Fair MAB selects arm $k$ with probability $p_{k, t}= \wh q_{k,t} + \ind(k_t=k)(1-\sum_{j \in [K]}\wh q_{j, t})$.
 \end{enumerate}
 
-\paragraph{Base bandit} Intuitively, if it is guaranteed that $\wh q_{k, t} \rightarrow q_k^\star$ then the fairness constraints will all be satisfied. The objective is then to allocate the remaining mass $1-\sum_k q_k^\star$ to the best arm in order to minimize the bandit regret. To reach this goal, it is natural to assign this task to a standard bandit algorithm. We remark that when $\max_{k \in [K]} \lambda_k= 0$, Fair-MAB simply follows the recommendation of the base bandit at each time step, and hence naturally interpolates the standard setting and the fair setting. The base bandit can be chosen among any standard policy like UCB1 \citep{auer2002finite}, TS \citep{TS_1933, TS12AG}, KL-UCB \citep{KL_UCB} or MED \citep{honda11MED, baudry2023general}. %Furthermore, even if $\lambda_j>0$ for each arm $j$ this standard bandit exploration may be interesting to minimize the regret. 
+\paragraph{Base bandit} Intuitively, 
+if it is guaranteed that $\wh q_{k, t} \rightarrow q_k^\star$ then the fairness constraints will all be satisfied. The objective is then to allocate the remaining mass $1-\sum_k q_k^\star$ to the best arm in order to minimize the bandit regret. To reach this goal, it is natural to assign this task to a standard bandit algorithm. We remark that when $\max_{k \in [K]} \lambda_k= 0$, Fair-MAB simply follows the recommendation of the base bandit at each time step, and hence naturally interpolates the standard setting and the fair setting. The base bandit can be chosen among any standard policy like UCB1 \citep{auer2002finite}, TS \citep{TS_1933, TS12AG}, KL-UCB \citep{KL_UCB} or MED \citep{honda11MED, baudry2023general}. %Furthermore, even if $\lambda_j>0$ for each arm $j$ this standard bandit exploration may be interesting to minimize the regret. 
+\hr{Le mec place ses pions haha}
 
 \paragraph{Fair allocation} For simplicity, let us assume that the problem is feasible. We can consider several variants, that can all be expressed as follows: let $\wt \mu_{k,t}$ be an estimation of the mean of arm $k$ given its past observations, define \[ \wh q_{k,t}= \frac{\lambda_k}{\wt \mu_{k, t}} \times \left(\left(\sum_{j=1}^K \frac{\lambda_j}{\wt \mu_{j, t}}\right) \wedge 1\right)^{-1}.\] 
-$(\wh q_{k, t})_{k \in [K]}$ is necessarily a feasible allocation, because it is normalized if $\sum_{j=1}^K \frac{\lambda_j}{\wt \mu_{j, t}}> 1$. We assume that a range $[0, \mu^+]$ on the expectations is known. As we also proved that the feasibility guarantees that $\mu_k \geq \mu_k^- \coloneqq \frac{\lambda_k}{1-\sum_{i\neq k}\lambda_i}$, we assume that all estimates $\wt \mu_{k,t}$ are clipped in the interval $[\mu_k^-, \mu^+]$. The lower bound further ensures that at each time step $t$ the normalization term satisfies \[\sum_{j=1}^K \frac{\lambda_j}{\wt \mu_{j, t}}\geq S \coloneqq \sum_{k=1}^K \frac{\lambda_j}{\mu_j^-}=\sum_{k=1}^K \left(1-\sum_{j\neq k} \lambda_j\right) \leq K \Longrightarrow \forall k\in[K], t\in[T], \; \wh q_{k, t}\geq \alpha_k \coloneqq \frac{\lambda_k}{\mu^+ S}\geq \frac{\lambda_k}{\mu^+ K}.\] 
+$(\wh q_{k, t})_{k \in [K]}$ is necessarily a feasible allocation, because it is normalized if $\sum_{j=1}^K \frac{\lambda_j}{\wt \mu_{j, t}}> 1$. We assume that a range $[0, \mu^+]$ on the expectations is known. As we also proved that the feasibility guarantees that $\mu_k \geq \mu_k^- \coloneqq \frac{\lambda_k}{1-\sum_{i\neq k}\lambda_i}$, we assume that all estimates $\wt \mu_{k,t}$ are clipped in the interval $[\mu_k^-, \mu^+]$. The lower bound further ensures that at each time step $t$ the normalization term satisfies 
+\begin{align*}
+&\sum_{j=1}^K \frac{\lambda_j}{\wt \mu_{j, t}} \leq S \coloneqq \sum_{k=1}^K \frac{\lambda_j}{\mu_j^-}=\sum_{k=1}^K \left(1-\sum_{j\neq k} \lambda_j\right) \leq K \\
+& \Longrightarrow \forall k\in[K], t\in[T], \; \wh q_{k, t}\geq \alpha_k \coloneqq \frac{\lambda_k}{\mu^+ \max(S, 1)}\geq \frac{\lambda_k}{\mu^+ K}. 
+\end{align*}
 
 This property is crucial for our analysis, since it guarantees that the allocation strategy working with estimates of the mean is sufficient to obtain a linear number of samples from the arm for with a reward requirement. 
 
