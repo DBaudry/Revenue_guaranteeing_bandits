@@ -1,4 +1,4 @@
-\section{Fairness in contextual settings}
+\section{Fairness in contextual settings}\label{app::contextual}
 
 \textcolor{blue}{The following setting is exactly the setting of Vianney's "bandits with covariates" paper.}
 
@@ -73,7 +73,7 @@ Technically, $N_{k,j}(t)\geq \alpha_{k,j}t$ could be replaced by something else 
 
 The main remaining ingredient is to define what happens when $\{\mu \in \cC_t, \forall k,j \; N_{k,j}(t)  \geq \alpha_{k,j} t\}$. We should prove that 
 \[\max_{q \in \cQ_t} \min_{p \in \cQ^\star} ||p-q ||_\infty = \cO(t^{-\alpha}), \]
-for some $\alpha \in (0, 1)$. In words, we want to say that all allocations in $\cQ_t$ are ``close'' to an optimal allocation. This is where we will need to prove that a small diameter for $\cC_t$ (for which we use $N_{k,j}(t)  \geq \alpha_{k,j} t$) and the fact that the true parameter is in $\cC_t$ translates to allocations that are close to optimal.
+for some $\alpha \in (0, 1)$. In words, we want to say that all allocations in $\cQ_t$ are ``close'' to an optimal allocation. This is where we will need to prove that a small diameter for $\cC_t$ (for which we use $N_{k,j}(t)  \geq \alpha_{k,j} t$) and the fact that the true parameter is in $\cC_t$ translates to allocations that are close to optimal. This does not seem very complicated: as the constraints are linear it is clear that if $\wh \mu_{k,j}$ is less than $\cO(t^{-\alpha})$ away from $\mu_{k, j}$ then it is possible to change the probabilities to an order $\cO(t^{-\alpha})$ to get a solution, that is close to the opt of $(\mu_{k,j})$. \textcolor{blue}{But there is an issue at the "feasibility boundary''.}
 
 Note: I skip in these explanations the regret of a UCB algorithm based on our confidence set $\cC_t$, it should not cause much difficulty in the proof.
 
