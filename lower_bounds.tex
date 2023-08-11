@@ -14,7 +14,7 @@ Note that this bound is a minimax bound if we consider $(\lambda_k)_{k \in [K]}$
 
 \begin{theorem}
 	There exists a two-armed bandit problem for which
-	\[ \max\left\{\frac{\cV_T}{\mu}, \frac{\cR_T}{\Delta}  \right\} \geq \frac{e^{-\frac{1}{2}}}{24}\times \frac{\lambda}{\mu^2} \sqrt{\frac{T}{\lambda/\mu}}\;. \]
+	\[ \max\left\{\frac{\cV_T}{\mu}, \frac{\cR_T}{\Delta}  \right\} \geq \frac{e^{-\frac{1}{2}}}{12}\times \frac{\lambda}{\mu^2} \sqrt{\frac{T}{\lambda/\mu}}\;. \]
 \end{theorem}
 
 \begin{proof}
@@ -30,11 +30,11 @@ Similarly, $\cS_t$ is linear under model $\nu'$ when $A^c$ holds, because
 Combining these two results and using Bretagnolle-Hubert inequality, we obtain that 
 \begin{align*}
 \bE_\nu[\cS_t] + \bE_{\nu'}[\cS_t] & \geq T\lambda \frac{\epsilon}{2(\mu+\epsilon)\left(\mu+\frac{\epsilon}{2}\right)}\left(\bP_\nu(A) + \bP_{\nu'}(A^c)\right) \\
-& \geq T\lambda \frac{\epsilon}{4(\mu+\epsilon)\left(\mu+\frac{\epsilon}{2}\right)} \exp\left(- \bE_{\nu}[N_2(T)] \kl(\mu, \mu+\epsilon)\right) \\
-& \geq T\lambda \frac{\epsilon}{4(\mu+\epsilon)\left(\mu+\frac{\epsilon}{2}\right)} \exp\left(-2\epsilon^2 \times T p^\star \right) \;,
+& \geq T\lambda \frac{\epsilon}{2(\mu+\epsilon)\left(\mu+\frac{\epsilon}{2}\right)} \exp\left(- \bE_{\nu}[N_2(T)] \kl(\mu, \mu+\epsilon)\right) \\
+& \geq T\lambda \frac{\epsilon}{2(\mu+\epsilon)\left(\mu+\frac{\epsilon}{2}\right)} \exp\left(-2\epsilon^2 \times T p^\star \right) \;,
 \end{align*}
 since we consider this lower bound on the class of fair algorithm (we could have used $\bE_\nu[N_2(T)]\leq T$ otherwise). Then, let us consider $\epsilon = \frac{1}{2\sqrt{Tp^\star}}\vee \mu$. In that case, we obtain 
-\[\bE_\nu[\cS_t] + \bE_{\nu'}[\cS_t] \geq \frac{e^{-\frac{1}{2}} }{24} \times \frac{\lambda}{\mu^2} \sqrt{\frac{T}{p^\star}}\;. \]
+\[\bE_\nu[\cS_t] + \bE_{\nu'}[\cS_t] \geq \frac{e^{-\frac{1}{2}} }{12} \times \frac{\lambda}{\mu^2} \sqrt{\frac{T}{p^\star}}\;. \]
 
 \end{proof}
 

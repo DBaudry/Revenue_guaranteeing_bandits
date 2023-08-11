@@ -67,6 +67,11 @@ This idea is quite simple, but it has good properties that may make it work:
 	Interestingly, the lower bound do not depend on $t$ so we could adapt our proofs with $\alpha_k=\frac{\lambda_k}{K\mu_k}$, and for instance with $\sum_{s=t}\ind(\mu \in \cC_s)\geq t/2$.
 \end{remark}
 
+\begin{remark}[Computational aspects]
+	Computing the optimistic allocation for each arm can be simple in some cases. For instance, if we consider the un-structured case, the confidence set is a union of $[KJ]$ confidence intervals. It is clear that the optimistic allocation of arm $k$ in context $j$ considers $\wt \mu_{k,j,t}=\UCB_{k,j,t}$ and $\wt \mu_{\ell, j, t}=\LCB_{\ell, j, t}$ for any $\ell \neq [K]$ (make arm $k$ look as good as possible in this specific context); while on the contrary for a context $i\neq j$ the fair algorithm will choose $\wt \mu_{k,i,t}=\LCB_{k,i,t}$ and $\wt \mu_{\ell, i, t}=\UCB_{\ell, i, t}$ for $i\neq j$ (making arm $k$ look as bad as possible in other contexts can only increase its probability of being pulled in context $j$). Hence, computing the optimistic strategies is straightforward in this setting.
+\end{remark}
+
+
 \paragraph{Proof ideas} The core of the algorithm is to use a confidence sets such that $\sum_{t=1}^T \bP(\mu \notin \cC_t)$ converges. We can use the following good event in the proof, \[\{\mu \in \cC_t, \forall (k,j) \in [K]\times [J]: \; N_{k,j}(t)  \geq \alpha_{k,j} t \},\] where $N_{k,j}(t)$ is the number of pulls of arm $k$ in context $j$ and $\alpha_{k, j}$ is tuned so that $\sum_{k=1}^K \sum_{j=1}^J \sum_{t=1}^T \bP(N_{k,j}(t)\leq \alpha_{k,j}t)$ converges. We can use for instance "with high probability $\mu\in \cC_s$ was true for at least $t/2$ steps", "among these steps contexts $j$ appeared for at least fraction $p_j/2$ with high prob." In the remainder we have now $p_jt/4$ steps for $p_{k,s}\geq \frac{\lambda_k}{K\mu_k}$ was true, so  $\alpha_{k,j}= \frac{p_j\lambda_k}{8K\mu_k}$ should be reasonable to make everything converge.
 
 Technically, $N_{k,j}(t)\geq \alpha_{k,j}t$ could be replaced by something else that would reflect the quantity of information collected. However, our proof holds even in the unstructured case.
