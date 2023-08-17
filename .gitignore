@@ -1,0 +1,12 @@
+code/data
+code/.DS_Store
+pdf/.DS_Store
+pdf/main.aux
+pdf/main.bbl
+pdf/main.blg
+pdf/main.fdb_latexmk
+pdf/main.fls
+pdf/main.log
+pdf/main.out
+pdf/main.pdf
+pdf/main.synctex.gz
