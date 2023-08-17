@@ -120,8 +120,52 @@ Furthermore, when $\rho_\lambda$ is small or $0$ the term in $\rho_\lambda^{-2}$
 \subsection{Bandit regret}
 
 We know upper bound the bandit regret for the three instances of Fair MAB that we considered. Similarly to what we did in previous section, we consider the following good event
- \[\cG_t=\left\{ \forall k \in [K]\;:\; \mu_k \in [\LCB_{k, t}, \UCB_{k, t}], N_k(t)\geq \frac{\alpha_j}{2} \right\}\;.\]
+ \[\cG_t=\left\{ \forall k \in [K]\;:\; \mu_k \in [\LCB_{k, t}, \UCB_{k, t}], N_k(t)\geq \frac{\alpha_k t}{2} \right\}\;.\]
  The main difference is that here it is not necessary to check the value of $\sum_j \frac{\lambda_j}{\wt \mu_{j,t}}$, since in any case it holds that $p_{k,t}\leq \frac{\lambda_k}{\wt \mu_{k,t}}$. This will simplify the analysis of $\bP(\bar \cG_t)$ compared to previous section.
+
+\begin{lemma}
+	In the case of Bernouilli reward, the Greedy estimate for $\widetilde{\mu_{k, t}}$ lead to a regret in $O(\log(T))$
+\end{lemma}
+\begin{proof}
+The total contribution to the regret can be written as:
+\begin{align*}
+\cR_{T,k} &= \bE\left[\sum_{t=1}^T \sum_{k=2}^K (p_{k,t} - p^\star_k)\right]\Delta_k \\
+&= \sum_{t=1}^T \sum_{k=2}^K \bE\left[ (\wh q_{k, t} + (1-\sum_j \wh q_{j, t}) \ind(k_t=k) - p_k^\star) \right]\Delta_k \\
+&= \sum_{t=1}^T \sum_{k=2}^K \left( \bE [ \wh q_{k, t} - p_k^\star]  + \bE [ (1-\sum_j \wh q_{j, t}) \ind(k_t=k) ] \right)\Delta_k \\
+\end{align*}
+
+Then we write 
+\begin{align*}
+	\bE [ \wh q_{k, t} - p_k^\star]  &= \bE [ \wh q_{k, t}] - p_k^\star \\
+	&\leq  \bE [ \frac{\lambda_k}{\wh \mu_{k, t}} \ind(\mathcal{G}_{t})] + \bP(\bar \cG_t)  - p_k^\star \\
+	&=  \bE [ \frac{\lambda_k}{ \mu_{k}(1 + \frac{\wh \mu_{k, t} - \mu_{k}}{\mu_{k}})} \ind(\mathcal{G}_{t})] + \bP(\bar \cG_t)  - \frac{\lambda_{k}}{\mu_{k}} \\
+\end{align*}
+
+Under $\mathcal{G}_{t}$, $ | \wh \mu_{k, t} - \mu_{k}| \leq \sqrt{\frac{C \log(t)}{N_k(t)}} \leq \sqrt{\frac{2 C \log(t)}{\alpha_{k} t}} $. Recall Taylor inequality: $|x| \leq a$, 
+\[
+\frac{1}{1 + x} \leq 1 - x + a^2	
+\]
+so we get:
+\[
+\frac{\lambda_k}{ \mu_{k}(1 + \frac{\wh \mu_{k, t} - \mu_{k}}{\mu_{k}})} \leq \frac{\lambda_{k}}{\mu_{k}}(1 - \frac{\wh \mu_{k, t} - \mu_{k}}{\mu_{k}} + \frac{2 C \log(t)}{\mu_{k}^2 \alpha_{k} t}) 
+\]
+
+Therefore:
+\begin{align*}
+	\bE [ \frac{\lambda_k}{ \mu_{k}(1 + \frac{\wh \mu_{k, t} - \mu_{k}}{\mu_{k}})} \ind(\mathcal{G}_{t})] &\leq  \bE [ \underbrace{\frac{\lambda_{k}}{\mu_{k}}(1 - \frac{\wh \mu_{k, t} - \mu_{k}}{\mu_{k}} + \frac{2 C \log(t)}{\mu_{k}^2 \alpha_{k} t})}_{> 0} \ind(\mathcal{G}_{t})] \\
+&\leq  \bE [ \frac{\lambda_{k}}{\mu_{k}}(1 - \frac{\wh \mu_{k, t} - \mu_{k}}{\mu_{k}} + \frac{2 C \log(t)}{\mu_{k}^2 \alpha_{k} t})]
+\end{align*}
+
+So that we get:
+\begin{align*}
+	\bE [ \wh q_{k, t} - p_k^\star] &\leq  \frac{2 C \lambda_{k} \log(t)}{\mu_{k}^3 \alpha_{k} t}
+\end{align*}
+
+
+
+
+\end{proof}
+Let us first start with 
 
 We denote by $\cR_{T,k}$ the contribution of a sub-optimal arm $k$ to the bandit regret, and first write that 
 \begin{align*}
