@@ -1,4 +1,4 @@
-\section{Analysis of Fair-MAB in $K$-armed bandits}\label{app::K_armed}
+\section{Analysis of Fair-MAB in $K$-armed bandits}
 
 For all of our results we assume that the means are upper bounded by a known constant $\mu^+$. If we don't do that we can use a forced exploration, but this would degrade some bounds in the scaling of $T$.
 \begin{itemize}
@@ -7,15 +7,15 @@ For all of our results we assume that the means are upper bounded by a known con
 	\item Greedy allocation: $\rho_\lambda>0$, both regrets are in $\sqrt{T}$. 
 \end{itemize}
 
-%TO-DO:
-%\begin{itemize}
-%	\item Check the ways to minimize $\sum \bP(\mu_k \notin [\LCB_{k,t}, \UCB_{k, t}])$ with a minimal confidence radius (should be fast, check e.g. the KL-UCB if I remember well) (minor).
-%	\item Check if there are some ways to avoid the dependency in $(\alpha_k)$ without degrading the performance (which is the case with forced exploration) (minor, I believe it's not possible).
-%	\item Check if we can avoid $\rho_\lambda>0$ and $\rho_\lambda^{-2}$ in the bounds for LCB and greedy. \textcolor{blue}{(Done and unified analysis)}
-%	\item Unfeasible case. (Done)
-%	\item Derive lower bounds. (in progress)
-%	\item See how these principles/proof techniques can be adapted for contextual case. (Most important point)
-%\end{itemize}
+TO-DO:
+\begin{itemize}
+	\item Check the ways to minimize $\sum \bP(\mu_k \notin [\LCB_{k,t}, \UCB_{k, t}])$ with a minimal confidence radius (should be fast, check e.g. the KL-UCB if I remember well) (minor).
+	\item Check if there are some ways to avoid the dependency in $(\alpha_k)$ without degrading the performance (which is the case with forced exploration) (minor, I believe it's not possible).
+	\item Check if we can avoid $\rho_\lambda>0$ and $\rho_\lambda^{-2}$ in the bounds for LCB and greedy. \textcolor{blue}{(Done and unified analysis)}
+	\item Unfeasible case. (Done)
+	\item Derive lower bounds. (in progress)
+	\item See how these principles/proof techniques can be adapted for contextual case. (Most important point)
+\end{itemize}
 
 
 \subsection{Fair regret}
@@ -36,14 +36,6 @@ We first write that
 V_1 & = \bE\left[\sum_{t=1}^T \left(\lambda_k- \frac{\lambda_k}{\wt \mu_{k, t}} \mu_k \right) \ind(\cG_t)\right] \\
 & = \lambda_k \bE\left[\sum_{t=1}^T \left(\frac{\wt \mu_{k,t}-\mu_k}{\wt \mu_{k,t}}\right) \ind(\cG_t)\right]\;.
 \end{align*}
-
-%\hr{Remark: in the Greedy case you have:
-%\begin{align*}
-%V_1 &= \lambda_k \bE\left[\sum_{t=1}^T \left(\frac{\wt \mu_{k,t}-\mu_k}{\wt \mu_{k,t}}\right) \ind(\cG_t)\right] \\
-%&\leq \lambda_k \bE\left[\sum_{t=1}^T \left(1 - \frac{\mu_k}{\wh \mu_{k,t}}\right)\right] \\
-%&\leq \lambda_k \sum_{t=1}^T \left(1 - \frac{\mu_k}{\bE \left[\wh \mu_{k,t} \right]}\right) = 0
-%\end{align*}
-%}
 
 Then, we remark that for the LCB allocation it simply holds that $V_1\leq 0$ since $\mu_k\geq \wt \mu_{k,t}$. Let us now consider the UCB allocation, under $\cG_t$ the term inside the expectation is non-negative and satisfies 
 \[\frac{\wt \mu_{k,t}^{\UCB}-\mu_k}{\wt \mu_{k,t}^{\UCB}} \leq \frac{\UCB_{k,t}-\mu_k}{\mu_k} \leq \frac{\UCB_{k,t}-\LCB_{k, t}}{\mu_k} \;. \]
