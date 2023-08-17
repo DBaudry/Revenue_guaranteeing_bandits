@@ -37,33 +37,17 @@ pytest
 
 ## Experiments
 
-### Reproducing Figure 1: Benchmark of LCB, UCB and Greedy on a MAB problem 
-
-Move into the `experiments` directory and run the benchmark:
-
-`python mab.py` 
-
-Move into the `plotting` directory and plot the data:
-
-`python mab.py` (Computation time: 1 second )
+Run `bash run_mmab.bash`
 
 Move into the `figure` directory to see the reproduced figure:
 
-![Figure 1](./figures/mab.png)
+Greedy algorithm
+![Figure 1](./figures/mab_Greedy.png)
 
 
-### Reproducing Figure 2: Benchmark of LCB, UCB and Greedy on a contextual MAB problem 
-
-Move into the `experiments` directory and run the benchmark:
-
-`python contextual_mab.py` 
-
-Move into the `plotting` directory and plot the data:
-
-`python contextual_mab.py` (Computation time: 1 second )
-
-Move into the `figure` directory to see the reproduced figure:
-
-![Figure 2](./figures/contextual_mab.png)
+UCB algorithm
+![Figure 2](./figures/mab_UCB.png)
 
 
+LCB algorithm
+![Figure 3](./figures/mab_LCB.png)
