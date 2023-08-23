@@ -18,6 +18,36 @@ TO-DO:
 \end{itemize}
 
 
+\subsection{Simulations}
+
+% \subsubsection{Same algo for base bandit and fair allocation}
+% \begin{figure}[H]
+% 	\centering
+% 	\includegraphics[width=0.8\textwidth]{../code/figures/mab_Greedy.pdf}
+% 	\caption{Fair allocation and base bandit based on Greedy}
+% 	\label{fig:}
+% \end{figure}
+
+
+% \begin{figure}[H]
+% \centering
+% 	\includegraphics[width=0.8\textwidth]{../code/figures/mab_UCB.pdf}
+% 	\caption{Fair allocation and base bandit based on UCB}
+% 	\label{fig:}
+% \end{figure}
+
+
+% \begin{figure}[H]
+% \centering
+% 	\includegraphics[width=0.8\textwidth]{../code/figures/mab_LCB.pdf}
+% 	\caption{Fair allocation and base bandit based on LCB \hr{I believe this wierd behavior is because it takes long to find the correct arm, using Greedy or UCB for the base bandit should correct that}}
+% 	\label{fig:}
+% \end{figure}
+
+\subsubsection{Greedy for base bandit, different fair allocations}
+
+\subsubsection{UCB for base bandit, different fair allocations}
+
 \subsection{Fair regret}
 
 Consider Fair-MAB with any allocation. We first propose a generic upper bound that works under the three allocations that we proposed. We recall that we assume that $\max_j \mu_j \leq \mu^+$ for a known constant $\mu^+$, and that the problem is feasible so $\forall j \in [K], \wh q_{j,t}  \geq \alpha_j$ for some $\alpha_j>0$. For a time step $t$, consider the event \[\cG_t=\left\{ \forall k \in [K]\;:\; \mu_k \in [\LCB_{k, t}, \UCB_{k, t}], N_k(t)\geq \frac{\alpha_kt}{2}, \sum\frac{\lambda_j}{\wt \mu_{j,t}} \leq 1 \right\}\;,\]
@@ -109,13 +139,22 @@ which is asymptotically constant if $\rho_\lambda>0$ and scales in $\lambda_k \s
 \paragraph{Summary} We summarize our results, applying them for distributions with bounded supports and confidence intervals using Hoeffding's inequality. This way, we can exhibit a precise scaling in all the components of the problem. By upper bounding $V_1$ and $V_2$ we proved the following results when $\rho_\lambda>0$. 
 
 For the LCB allocation,
+\hr{$V_1$ decreases linearly while $V_2$ is constant, this means the fairness regret decreases linearly, we obtain negative fairness regret for LCB which is consistant with the simulations.
+}
+
 	\[\cV_T \leq \left(\max_{k \in K}\lambda_k\right) \left( K \sum_{t=1}^{+\infty} \frac{1}{t^2} + \sum_{j=2}^K\frac{1}{\kl\left(\frac{\alpha_j}{2}, \alpha_j\right)} + \cO\left(\max_j\frac{2}{\alpha_j(\rho_\lambda \mu_j)^2}\log\left(\frac{2}{\alpha_j(\rho_\lambda \mu_j)^2}\right)\right)\right) \;, \]
-so the fair regret is upper bounded by a problem-dependent constant. For the greedy allocation, 
+so the fair regret is upper bounded by a problem-dependent constant. 
+
+For the greedy allocation, 
 	\begin{align*} \cV_T \leq \max_{k\in K} &\left(\frac{2\lambda_k}{\mu_k}\sqrt{\frac{C T \log(T)}{\alpha_k}}+ \lambda_k\left(K \sum_{t=1}^{+\infty} \frac{1}{t^2} + \sum_{j=2}^K\frac{1}{\kl\left(\frac{\alpha_j}{2}, \alpha_j\right)} \right.\right. \\
 	& \left.\left. + \cO\left(\max_j\frac{2}{\alpha_j(\rho_\lambda \mu_j)^2}\log\left(\frac{2}{\alpha_j(\rho_\lambda \mu_j)^2}\right)\right)\right)\right) \;. \end{align*}
+\hr{I think this is shoting ourselves in the foot, if we cannot prove that Greedy has better fairness than UCB then let's remove Greedy.}
+
 And for the UCB allocation, 
 		\begin{align*} \cV_T \leq \max_{k\in K} &\left(\frac{2\lambda_k}{\mu_k}\sqrt{\frac{C T \log(T)}{\alpha_k}}+ \lambda_k\left(K \sum_{t=1}^{+\infty} \frac{1}{t^2} + \sum_{j=2}^K\frac{1}{\kl\left(\frac{\alpha_j}{2}, \alpha_j\right)}\right)\right) \;. \end{align*}
 Furthermore, when $\rho_\lambda$ is small or $0$ the term in $\rho_\lambda^{-2}$ can be replaced by the upper bounds on $V_2'$ presented above, scaling (if we consider $T$ only) in $\sqrt{T\log(T)}$. The fact that it is possible in some cases to get a problem-dependent constant upper bound for the LCB allocation proves that the Fair Bandit equipped with this allocation will satisfy the fairness constraint faster than with the other approaches on average. On the other hand, UCB and Greedy both provide a bound of order $\cO(\sqrt{T\log(T)})$ in all cases. However, the second-order term of UCB is better since it does not depend on the feasibility gap. This has another advantage, which is that the upper bound for UCB do not depend on $\mu_k$ (since $\lambda_k/\mu_k \leq 1$) but only on $(\alpha_j)_{j \in [K]}$ (more precisely in $\max_j \alpha_j^{-2}$).
+
+\hr{Currently, the bound does not behave well when $\lambda_{k} \to 0$, since this implies $\alpha_{k} \to 0$. This should not happen since all allocations should be fair when $\lambda_k \to 0$.}
 
 \subsection{Bandit regret}
 
@@ -123,49 +162,6 @@ We know upper bound the bandit regret for the three instances of Fair MAB that w
  \[\cG_t=\left\{ \forall k \in [K]\;:\; \mu_k \in [\LCB_{k, t}, \UCB_{k, t}], N_k(t)\geq \frac{\alpha_k t}{2} \right\}\;.\]
  The main difference is that here it is not necessary to check the value of $\sum_j \frac{\lambda_j}{\wt \mu_{j,t}}$, since in any case it holds that $p_{k,t}\leq \frac{\lambda_k}{\wt \mu_{k,t}}$. This will simplify the analysis of $\bP(\bar \cG_t)$ compared to previous section.
 
-\begin{lemma}
-	In the case of Bernouilli reward, the Greedy estimate for $\widetilde{\mu_{k, t}}$ lead to a regret in $O(\log(T))$
-\end{lemma}
-\begin{proof}
-The total contribution to the regret can be written as:
-\begin{align*}
-\cR_{T,k} &= \bE\left[\sum_{t=1}^T \sum_{k=2}^K (p_{k,t} - p^\star_k)\right]\Delta_k \\
-&= \sum_{t=1}^T \sum_{k=2}^K \bE\left[ (\wh q_{k, t} + (1-\sum_j \wh q_{j, t}) \ind(k_t=k) - p_k^\star) \right]\Delta_k \\
-&= \sum_{t=1}^T \sum_{k=2}^K \left( \bE [ \wh q_{k, t} - p_k^\star]  + \bE [ (1-\sum_j \wh q_{j, t}) \ind(k_t=k) ] \right)\Delta_k \\
-\end{align*}
-
-Then we write 
-\begin{align*}
-	\bE [ \wh q_{k, t} - p_k^\star]  &= \bE [ \wh q_{k, t}] - p_k^\star \\
-	&\leq  \bE [ \frac{\lambda_k}{\wh \mu_{k, t}} \ind(\mathcal{G}_{t})] + \bP(\bar \cG_t)  - p_k^\star \\
-	&=  \bE [ \frac{\lambda_k}{ \mu_{k}(1 + \frac{\wh \mu_{k, t} - \mu_{k}}{\mu_{k}})} \ind(\mathcal{G}_{t})] + \bP(\bar \cG_t)  - \frac{\lambda_{k}}{\mu_{k}} \\
-\end{align*}
-
-Under $\mathcal{G}_{t}$, $ | \wh \mu_{k, t} - \mu_{k}| \leq \sqrt{\frac{C \log(t)}{N_k(t)}} \leq \sqrt{\frac{2 C \log(t)}{\alpha_{k} t}} $. Recall Taylor inequality: $|x| \leq a$, 
-\[
-\frac{1}{1 + x} \leq 1 - x + a^2	
-\]
-so we get:
-\[
-\frac{\lambda_k}{ \mu_{k}(1 + \frac{\wh \mu_{k, t} - \mu_{k}}{\mu_{k}})} \leq \frac{\lambda_{k}}{\mu_{k}}(1 - \frac{\wh \mu_{k, t} - \mu_{k}}{\mu_{k}} + \frac{2 C \log(t)}{\mu_{k}^2 \alpha_{k} t}) 
-\]
-
-Therefore:
-\begin{align*}
-	\bE [ \frac{\lambda_k}{ \mu_{k}(1 + \frac{\wh \mu_{k, t} - \mu_{k}}{\mu_{k}})} \ind(\mathcal{G}_{t})] &\leq  \bE [ \underbrace{\frac{\lambda_{k}}{\mu_{k}}(1 - \frac{\wh \mu_{k, t} - \mu_{k}}{\mu_{k}} + \frac{2 C \log(t)}{\mu_{k}^2 \alpha_{k} t})}_{> 0} \ind(\mathcal{G}_{t})] \\
-&\leq  \bE [ \frac{\lambda_{k}}{\mu_{k}}(1 - \frac{\wh \mu_{k, t} - \mu_{k}}{\mu_{k}} + \frac{2 C \log(t)}{\mu_{k}^2 \alpha_{k} t})]
-\end{align*}
-
-So that we get:
-\begin{align*}
-	\bE [ \wh q_{k, t} - p_k^\star] &\leq  \frac{2 C \lambda_{k} \log(t)}{\mu_{k}^3 \alpha_{k} t}
-\end{align*}
-
-
-
-
-\end{proof}
-Let us first start with 
 
 We denote by $\cR_{T,k}$ the contribution of a sub-optimal arm $k$ to the bandit regret, and first write that 
 \begin{align*}
@@ -187,7 +183,10 @@ This upper bound separates the regret due to the allocation ($\cO_{T,k}$) and th
 \paragraph{Upper bounding $\cO_{T, k}$} The regret due to the allocation can be upper bounded very similarly as the term $V_1$ of the fair regret (see previous section). Indeed, we can re-write $\cO_{T,k}$ as 
 \[\cO_{T,k} =\bE\left[\sum_{t=1}^T \frac{\lambda_k}{\mu_k}\left(\frac{\mu_k-\wt \mu_{k, t}}{\wt \mu_{k, t}} \wedge 1 \right) \ind(\cG_t)\right] \;.  \]
 
-Under $\cG_T$, the UCB allocation ensures that $\wt \mu_{k, t}\geq \mu_k$, so $\cO_{T,k}=0$. For the two other policies it is easy to verify that 
+Under $\cG_T$, the UCB allocation ensures that $\wt \mu_{k, t}\geq \mu_k$, so $\cO_{T,k}=0$. 
+\hr{Actually, this is where we see negative regret appear for UCB since it will be negative linear regret against positive square root}
+
+For the two other policies it is easy to verify that 
 \[ \cO_{T,k} \leq \bE\left[\sum_{t=1}^T \frac{\lambda_k}{\mu_k}\left(\frac{\UCB_{k, t}- \LCB_{k, t}}{\LCB_{k, t}}\wedge 1\right) \ind(\cG_t)\right].\]
 We reuse $t_\lambda(\CB)$ from the previous section (for $t\geq t_\lambda(\CB)$, we have $\LCB_{k,t}\geq \frac{\mu_k}{2}$ if $N_k(t)\geq \frac{\alpha_k t}{2}$). It holds directly that 
 \[\cO_{T,k} \leq \frac{\lambda_k}{\mu_k} \left(t_\lambda(\CB) + \frac{2}{\mu_k}\bE\left[\sum_{t=t_k}^T (\UCB_{k, t}- \LCB_{k, t}) \ind(\cG_T)\right] \right) \;. \]
@@ -195,8 +194,12 @@ We reuse $t_\lambda(\CB)$ from the previous section (for $t\geq t_\lambda(\CB)$,
 As before, we can be more specific for Hoeffding's bounds, and obtain (see previous section for details) that
 \[ \cO_{T,k} \leq 2\frac{p_k^\star}{\mu_k}\sqrt{\frac{T\log(T)}{\alpha_k}} + \cO\left(\frac{\lambda_k}{\alpha_k \mu_k^3}\log\left(\frac{4}{\alpha_k \mu_k^2}\right)\right)  \;. \]
 
+
 \paragraph{Upper bounding $\cB_{T, k}$} \textcolor{blue}{I continue the proof for a UCB algorithm, the proof is actually straightforward for optimistic algorithms since the best arm is represented by its UCB. For other policies the analysis would be more involved: we would need to make sure that the best arm is sampled enough to have a good mean, so that the algorithm is well-performing. We would surely need for instance that the probability of playing the bandit is large enough (e.g larger than $\rho_\lambda/2$), and we would get in that case a factor $2/\rho_\lambda$ in front of the upper bound of the second-order term of the standard bandit regret.\\
 Adapt the message in the main text depending on what we find.}
+
+\hr{Ok here, I believe we should actually use UCB to choose the arm (depending on the values of $\lambda$) so that we always have a good behavior for the allocation of the arm.
+Then, we can either choose UCB or LCB to focus on fairness or regret}
 
 First, under $\cG_t$ we can provide a deterministic upper bound of $1-\sum_j \wh q_{j,t} $. Indeed,
 \begin{align*}
@@ -302,3 +305,48 @@ The remaining term may look similar to the initial one, but there is a significa
 We finally obtain a term that is asymptotically equivalent to $e^{-\lambda_k\frac{t}{4C\log(t/2)}}$, whose sum converges.
 
 \textcolor{blue}{It this tight? Idk, this may be investigated. This is worse than what we obtained in the bounded case, but applicable in much broader settings.}
+
+\subsection{Tentative stuff (probably garbage)}
+
+\begin{lemma}
+	In the case of Bernouilli reward, the Greedy estimate for $\widetilde{\mu_{k, t}}$ lead to a regret in $O(\log(T))$ (Proof does not work)
+\end{lemma}
+\begin{proof}
+The total contribution to the regret can be written as:
+\begin{align*}
+\cR_{T,k} &= \bE\left[\sum_{t=1}^T \sum_{k=2}^K (p_{k,t} - p^\star_k)\right]\Delta_k \\
+&= \sum_{t=1}^T \sum_{k=2}^K \bE\left[ (\wh q_{k, t} + (1-\sum_j \wh q_{j, t}) \ind(k_t=k) - p_k^\star) \right]\Delta_k \\
+&= \sum_{t=1}^T \sum_{k=2}^K \left( \bE [ \wh q_{k, t} - p_k^\star]  + \bE [ (1-\sum_j \wh q_{j, t}) \ind(k_t=k) ] \right)\Delta_k \\
+\end{align*}
+
+Then we write 
+\begin{align*}
+	\bE [ \wh q_{k, t} - p_k^\star]  &= \bE [ \wh q_{k, t}] - p_k^\star \\
+	&\leq  \bE [ \frac{\lambda_k}{\wh \mu_{k, t}} \ind(\mathcal{G}_{t})] + \bP(\bar \cG_t)  - p_k^\star \\
+	&=  \bE [ \frac{\lambda_k}{ \mu_{k}(1 + \frac{\wh \mu_{k, t} - \mu_{k}}{\mu_{k}})} \ind(\mathcal{G}_{t})] + \bP(\bar \cG_t)  - \frac{\lambda_{k}}{\mu_{k}} \\
+\end{align*}
+
+Under $\mathcal{G}_{t}$, $ | \wh \mu_{k, t} - \mu_{k}| \leq \sqrt{\frac{C \log(t)}{N_k(t)}} \leq \sqrt{\frac{2 C \log(t)}{\alpha_{k} t}} $. Recall Taylor inequality: $|x| \leq a$, 
+\[
+\frac{1}{1 + x} \leq 1 - x + a^2	
+\]
+so we get:
+\[
+\frac{\lambda_k}{ \mu_{k}(1 + \frac{\wh \mu_{k, t} - \mu_{k}}{\mu_{k}})} \leq \frac{\lambda_{k}}{\mu_{k}}(1 - \frac{\wh \mu_{k, t} - \mu_{k}}{\mu_{k}} + \frac{2 C \log(t)}{\mu_{k}^2 \alpha_{k} t}) 
+\]
+
+Therefore:
+\begin{align*}
+	\bE [ \frac{\lambda_k}{ \mu_{k}(1 + \frac{\wh \mu_{k, t} - \mu_{k}}{\mu_{k}})} \ind(\mathcal{G}_{t})] &\leq  \bE [ \underbrace{\frac{\lambda_{k}}{\mu_{k}}(1 - \frac{\wh \mu_{k, t} - \mu_{k}}{\mu_{k}} + \frac{2 C \log(t)}{\mu_{k}^2 \alpha_{k} t})}_{> 0} \ind(\mathcal{G}_{t})] \\
+&\leq  \bE [ \frac{\lambda_{k}}{\mu_{k}}(1 - \frac{\wh \mu_{k, t} - \mu_{k}}{\mu_{k}} + \frac{2 C \log(t)}{\mu_{k}^2 \alpha_{k} t})]
+\end{align*}
+
+So that we get:
+\begin{align*}
+	\bE [ \wh q_{k, t} - p_k^\star] &\leq  \frac{2 C \lambda_{k} \log(t)}{\mu_{k}^3 \alpha_{k} t}
+\end{align*}
+
+
+
+
+\end{proof}

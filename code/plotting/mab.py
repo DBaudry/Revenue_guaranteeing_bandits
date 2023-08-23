@@ -3,18 +3,11 @@ import numpy as np
 import matplotlib
 import matplotlib.pyplot as plt
 from fairbandits.algo import greedy, ucb, lcb
+from joblib import load
 
-seeds = 100
-lambdas = np.array([0.2, 0.1, 0.25])
-mus = np.array([0.6, 0.7, 0.5])
-mu_estimates = [greedy, ucb, lcb]
-K = len(lambdas)
-T = int(1e5)
+seeds, lambdas, mus, mu_estimates, K, T, all_res = load("data/mab_same_estimates")
 
-all_res = np.load("data/mab.npy")
-all_res = all_res.reshape(seeds, len(mu_estimates), -1, T - (K + 1))
-
-for n, name in enumerate(["Greedy", "UCB", "LCB"]):
+for n, name in enumerate(mu_estimates):
     res = all_res[:, n]
     seeds, _, T = res.shape 
     res_med = np.mean(res, axis=0)
@@ -31,6 +24,55 @@ for n, name in enumerate(["Greedy", "UCB", "LCB"]):
         axes[i].set_xscale("symlog")
         axes[i].set_yscale("symlog")
         axes[i].grid()
-    plt.savefig("figures/mab_%s.pdf" % name, bbox_inches="tight")
-    plt.savefig("figures/mab_%s.png" % name)
+    plt.savefig("figures/mab_%s_%s.pdf" % (name, name), bbox_inches="tight")
+    plt.savefig("figures/mab_%s_%s.png" % (name, name), bbox_inches="tight")
+    plt.close()
+
+
+
+seeds, lambdas, mus, mu_estimate2, mu_estimates, K, T, all_res = load("data/mab_ucb_bandit_all_fair")
+
+for n, name in enumerate(mu_estimates):
+    res = all_res[:, n]
+    seeds, _, T = res.shape 
+    res_med = np.mean(res, axis=0)
+    res_high = np.mean(res, axis=0) + np.std(res, axis=0) / np.sqrt(seeds)
+    res_low = np.mean(res, axis=0) - np.std(res, axis=0) / np.sqrt(seeds)
+
+    measures = ["Fairness", "Regret"]
+    fig, axes = plt.subplots(nrows=len(measures))
+    plt.subplots_adjust(hspace=0.5)
+    for i, measure in enumerate(measures):
+        axes[i].plot(np.arange(T), res_med[i], color="red")
+        axes[i].fill_between(np.arange(T), res_low[i], res_high[i], alpha=0.3)
+        axes[i].set_title(measure)
+        axes[i].set_xscale("symlog")
+        axes[i].set_yscale("symlog")
+        axes[i].grid()
+    plt.savefig("figures/mab_%s_%s.pdf" % (name, mu_estimate2), bbox_inches="tight")
+    plt.savefig("figures/mab_%s_%s.png" % (name, mu_estimate2), bbox_inches="tight")
+    plt.close()
+
+
+seeds, lambdas, mus, mu_estimate2, mu_estimates, K, T, all_res = load("data/mab_greedy_bandit_all_fair")
+
+for n, name in enumerate(mu_estimates):
+    res = all_res[:, n]
+    seeds, _, T = res.shape 
+    res_med = np.mean(res, axis=0)
+    res_high = np.mean(res, axis=0) + np.std(res, axis=0) / np.sqrt(seeds)
+    res_low = np.mean(res, axis=0) - np.std(res, axis=0) / np.sqrt(seeds)
+
+    measures = ["Fairness", "Regret"]
+    fig, axes = plt.subplots(nrows=len(measures))
+    plt.subplots_adjust(hspace=0.5)
+    for i, measure in enumerate(measures):
+        axes[i].plot(np.arange(T), res_med[i], color="red")
+        axes[i].fill_between(np.arange(T), res_low[i], res_high[i], alpha=0.3)
+        axes[i].set_title(measure)
+        axes[i].set_xscale("symlog")
+        axes[i].set_yscale("symlog")
+        axes[i].grid()
+    plt.savefig("figures/mab_%s_%s.pdf" % (name, mu_estimate2), bbox_inches="tight")
+    plt.savefig("figures/mab_%s_%s.png" % (name, mu_estimate2), bbox_inches="tight")
     plt.close()

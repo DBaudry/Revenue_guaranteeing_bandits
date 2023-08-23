@@ -42,6 +42,9 @@ class Fair(GeneralAlgo):
             q[mu_tilde == 0] = self.lambdas[mu_tilde == 0] / np.sum(self.lambdas[mu_tilde == 0])
             return q
         else:
+            print(self.t)
+            if np.sum(self.lambdas / mu_tilde) < 1:
+                print(self.t, np.sum(self.lambdas / mu_tilde))
             return (self.lambdas / mu_tilde) / max(np.sum(self.lambdas / mu_tilde), 1)
         
 class Bandit(GeneralAlgo):
