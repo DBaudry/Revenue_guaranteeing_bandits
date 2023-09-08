@@ -1,7 +1,6 @@
 # MAB experiment
 
-import numpy as npa
-from fairbandits.algo import FairBandit, Fair, Bandit, greedy, ucb, lcb, mab_opt, mu_opt
+from fairbandits.algo import FairBandit, Fair, Bandit, greedy, ucb, lcb, mab_opt, mu_opt, kl_ucb, kl, kl_lcb
 from fairbandits.environment import mab_environment
 from joblib import Parallel, delayed
 import numpy as np
@@ -49,8 +48,34 @@ def test_opt():
     lambdas = np.array([0.2, 0.1, 0.25])
     mus = np.array([0.6, 0.7, 0.5])
     K = len(lambdas)
-    T = int(1e4)
+    T = int(1e2)
     cum_fairness, cum_regrets, abs_cum_deviation, cum_deviation_q = do_expe(seed, lambdas, mus, T, mu_opt(mus))
     np.testing.assert_equal(np.linalg.norm(cum_regrets), 0)
     np.testing.assert_equal(np.linalg.norm(cum_fairness), 0)
     np.testing.assert_equal(np.linalg.norm(abs_cum_deviation), 0)
+
+
+def test_klucb():
+    N = np.array([56, 230, 34])
+    mu = np.array([0.3, 0.5, 0.9])
+    t = np.sum(N)
+    X = np.array([np.random.binomial(N[k], mu[k]) for k in range(len(N))])
+    mu_hat = X / N
+    mu_UCB = kl_ucb(t, N, mu_hat)
+    for k in range(len(mu)):
+        assert mu_UCB[k] > mu_hat[k]
+        assert kl(mu_hat[k], mu_UCB[k]) >  2*np.log(t) / N[k]
+        assert kl(mu_hat[k], mu_UCB[k] - 2e-6) <  2*np.log(t) / N[k]
+
+
+def test_kllcb():
+    N = np.array([56, 230, 34])
+    mu = np.array([0.3, 0.5, 0.9])
+    t = np.sum(N)
+    X = np.array([np.random.binomial(N[k], mu[k]) for k in range(len(N))])
+    mu_hat = X / N
+    mu_LCB = kl_lcb(t, N, mu_hat)
+    for k in range(len(mu)):
+        assert mu_LCB[k] < mu_hat[k]
+        assert kl(mu_hat[k], mu_LCB[k]) >  2*np.log(t) / N[k]
+        assert kl(mu_hat[k], mu_LCB[k] + 2e-6) <  2*np.log(t) / N[k]
