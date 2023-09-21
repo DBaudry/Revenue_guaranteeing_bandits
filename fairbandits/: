@@ -1,6 +1,7 @@
 import numpy as np
 import warnings
 
+
 class BanditQ:
     def __init__(self, lambdas, T) -> None:
         self.lambdas = lambdas
@@ -67,134 +68,28 @@ def maxlog(r, tol=1e-8, max_iter=100):
     return -1 / (r + mu)
 
 
-class ETC:
-    def __init__(self, lambdas, T, f, c, w):
+class FairETC:
+    def __init__(self, lambdas, T):
         self.lambdas = lambdas
         self.T = T
-        self.phase = 1
-        self.t = 0
-        self.c = c
-        self.f = f
-        self.w = w
-        self.muhat = np.zeros_like(lambdas)  # Mean estimate
-        self.muhat1 = np.zeros_like(lambdas)  # Mean estimate
-        self.muhat2 = np.zeros_like(lambdas)  # Mean estimate
-        self.mu_estimate1 = np.zeros_like(lambdas)
-        self.mu_estimate2 = np.zeros_like(lambdas)
-        self.N = np.zeros_like(lambdas)
-        self.N1 = np.zeros_like(lambdas)
-        self.N2 = np.zeros_like(lambdas)
-        self.N3 = np.zeros_like(lambdas)
+        self.cumsum_ = np.cumsum(lambdas * T)
+        self.i_ = 0
 
-    def play(self):
+    def play(self, T):
         K = len(self.lambdas)
-        T = self.T
-        lambdas = self.lambdas
-        c = self.c
-        f = self.f
-        w = self.w
-
-        self.phase = 1
-        for k in range(K):
-            if self.N1[k] <  self.f[k] * T:
-                p = np.zeros(K)
-                p[k] = 1
-                return p
-
-        self.phase = 2
-        for k in range(K):
-            if self.N2[k] < c * lambdas[k]/self.mu_estimate1[k]* T:
-                p = np.zeros(K)
-                p[k] = 1
-                return p
-
-        self.phase = 3
-        for k in range(K):
-            condk = lambdas[k] / self.mu_estimate2[k] 
-            condk -= c * lambdas[k] / self.mu_estimate1[k]
-            condk -= f[k]
-            condk -=  w[k] * max((np.sum(lambdas/self.mu_estimate2) - 1), 0)
-            condk = max(condk, 0) * T
-            if self.N3[k] < condk:
-                p = np.zeros(K)
-                p[k] = 1
-                return p
-
-        self.phase = 4
-        p = np.zeros(K)
-        i = np.argmax(kl_ucb(self.t, self.N, self.muhat, self.lambdas))
-        p[i] = 1
-        return p
-
-
-    def update(self, k, r, x=None):
-        self.muhat[k] = (self.N[k] * self.muhat[k] + r) / (self.N[k] + 1)
-
-        self.N[k] = self.N[k] + 1
-        self.t += 1
-        if self.phase == 1:
-            self.muhat1 = self.muhat
-            self.mu_estimate1 = clip(self.muhat1, self.lambdas)
-            self.N1[k] += 1
-
-        if self.phase == 2:
-            self.muhat2[k] = (self.N2[k] * self.muhat2[k] + r) / (self.N2[k] + 1)
-            self.mu_estimate2 = clip(self.muhat2, self.lambdas)
-            self.N2[k] += 1
-
-        if self.phase == 3:
-            self.N3[k] += 1
-
-
-class ETCAnytime:
-    def __init__(self, lambdas, T, rng:np.random.RandomState):
-        self.lambdas = lambdas
-        self.T = T
-        self.N = np.zeros_like(lambdas)
-        self.N1 = np.zeros_like(lambdas)
-        self.muhat = np.zeros_like(lambdas)
-        self.muhat1 = np.zeros_like(lambdas)
-        self.mu_estimate1 = clip(self.muhat1, self.lambdas)
-        self.t = 0
-        self.rng = rng
-        self.i = 0
-
-    def play(self):
-        lambdas = self.lambdas
-        K = len(lambdas)
-
-        proba = np.zeros(3)
-        proba[0] = np.sum(lambdas)
-
-        if np.sum(lambdas / self.mu_estimate1) <= 1:
-            proba[1] = np.sum(lambdas / self.mu_estimate1 - lambdas)
-        else:
-            proba[1] = np.sum(lambdas / self.mu_estimate1 - lambdas)  / np.sum(lambdas / self.mu_estimate1 - lambdas) * (1 - np.sum(lambdas))
-        proba[2] = 1 - np.sum(proba[:2])
-
-
-        i = self.rng.choice([0, 1, 2], p=proba)
-        self.i = i
-
-        if i == 0:
-            p = lambdas
-        if i == 1:
-            p = lambdas / self.mu_estimate1 - lambdas
-        if i == 2:
+        if self.t < self.cumsum_[self.i_]:
             p = np.zeros(K)
-            k = np.argmax(kl_ucb(self.t, self.N, self.muhat, self.lambdas))
-            p[k] = 1
-        return p / np.sum(p)
+            p[self.i_] = 1
+            return p
+        elif self.i_ < K:
+                self.i_ += 1
+                p = np.zeros(K)
+                p[self.i_] = 1
+            
 
 
-    def update(self, k, r, x=None):
-        self.muhat[k] = (self.N[k] * self.muhat[k] + r) / (self.N[k] + 1)
-        self.N[k] = self.N[k] + 1
-        self.t += 1
-        if self.i == 1:
-            self.muhat1[k] = (self.N1[k] * self.muhat1[k] + r) / (self.N1[k] + 1)
-            self.mu_estimate1 = clip(self.muhat1, self.lambdas)
-            self.N1[k] += 1
+
+
 
 
 class GeneralAlgo:
@@ -212,7 +107,8 @@ class GeneralAlgo:
             Function that estimates mu_tilde
         """
         K = len(lambdas)
-        self.lambdas = lambdas
+        # This trick is to deal with zero division
+        self.lambdas = np.maximum(lambdas, np.ones(K) * 1e-15)
         self.muhat = np.zeros(K)  # Mean estimate
         self.N = np.zeros(K)  # Number of times each arm has been observed
         self.mu_tilde_estimate = mu_tilde_estimate
@@ -230,13 +126,7 @@ class GeneralAlgo:
 class Fair(GeneralAlgo):
     def play(self):
         mu_tilde = self.mu_tilde_estimate(self.t, self.N, self.muhat, self.lambdas)
-        I = self.lambdas != 0
-        p = np.zeros_like(mu_tilde)
-        p[I] =  self.lambdas[I] / mu_tilde[I]
-        if np.sum(p) > 1:
-            return p / np.sum(p)
-        else:
-            return p
+        return (self.lambdas / mu_tilde) / max(np.sum(self.lambdas / mu_tilde), 1)
 
 
 class Bandit(GeneralAlgo):

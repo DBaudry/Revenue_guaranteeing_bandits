@@ -36,8 +36,8 @@ def load_plotting(seeds, mus, lambdas, K, T, algos):
         cum_fairness = []
         cum_regret = []
         abs_cum_deviation = []
+        iterations = np.array(res[0][0])
         for seed in range(seeds):
-            iterations = np.array(res[seed][0])
             cum_fairness.append(res[seed][1])
             cum_regret.append(res[seed][2])
             abs_cum_deviation.append(res[seed][3])
@@ -112,10 +112,10 @@ def do_plot(algos, subopt_arms, fairness_path, bandit_path, lb_path):
     plt.close()
 
 
+algos = ["greedy", "KL-UCB", "KL-LCB"]
 # Experiments 1: study of the feasibility gap
 exp = "exp1"
-for feasibility_gap in [0.1, 0.5, 0.9]:
-    algos = ["greedy", "KL-UCB", "KL-LCB"]
+for feasibility_gap in [0, 0.1, 0.5, 0.9]:
     mus = np.array([0.8, 0.9, 0.7])
     K = len(mus)
     plot, iterations = load_plotting(
@@ -136,7 +136,7 @@ for feasibility_gap in [0.1, 0.5, 0.9]:
 
 # Experiments 2: study of the feasibility gap
 exp="exp2"
-for feasibility_gap in [0.1, 0.5, 0.9]:
+for feasibility_gap in [0, 0.1, 0.5, 0.9]:
     mus = np.array([0.8, 0.9, 0.7])
     lambdas = (1 - feasibility_gap) * np.ones(len(mus))  / np.sum(1 / mus)
     K = len(lambdas)
@@ -204,6 +204,29 @@ T = 5000
 mus = np.array([0.335, 0.203, 0.241, 0.781, 0.617])
 lambdas = np.array([0.167, 0.067, 0, 0, 0])
 K = len(mus)
+plot, iterations = load_plotting(
+    seeds = 200, 
+    mus = mus,
+    lambdas = lambdas,
+    K = K,
+    T = 5000,
+    algos=algos
+    )
+do_plot(algos, [0, 2], 
+        "./figures/%s_fairness" % (exp), 
+        "./figures/%s_bandit" % (exp), 
+        "./figures/%s_lb" % (exp), 
+    )
+
+
+# Experiments 4: small mus
+exp="exp6"
+T = 5000
+mus = np.array([0.8, 0.9, 0.7]) * 1 / np.sqrt(T)
+feasibility_gap = 0.5
+K = len(mus)
+lambdas = mus / len(mus) * (1 - feasibility_gap)
+mus[1] = mus[1] * np.sqrt(T)
 plot, iterations = load_plotting(
     seeds = 200, 
     mus = mus,
