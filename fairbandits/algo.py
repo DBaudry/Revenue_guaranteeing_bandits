@@ -38,20 +38,22 @@ class BanditQ:
         self.Q = self.Q + self.lambdas
         self.Q[k] = self.Q[k] - r
         self.Q = np.maximum(self.Q, 0)
-        self.cum_r[k] += (self.Q[k] + self.V)* r / x[k]
+        r_tilde = np.zeros(d)
+        r_tilde[k] = (self.Q[k] + self.V) * r / x[k]
+        self.cum_r[k] += r_tilde[k]
         p = self.p
-        q = maxlog(r - 1/p)
+        q = maxlog(self.eta * r_tilde - 1/p)
         breg = - np.sum(np.log(q)) + np.sum(np.log(p)) + np.sum((q - p) / p)
-        self.S = self.S + self.eta * (np.dot(r, q - p) - breg)
-        eta = d / self.S
-        self.p = maxlog(self.cum_r * eta)
+        self.S = self.S + (np.dot(r_tilde, q - p) - breg/self.eta )
+        self.eta = d / self.S
+        self.p = maxlog(self.cum_r * self.eta)
         self.t += 1
 
 
 def maxlog(r, tol=1e-8, max_iter=100):
     """
     Solves for x in the d-dimensional probability simplex
-    max sum_{i=1}^d log(x_i) + sum_{i=1}^d r_i x_i
+    argmax sum_{i=1}^d log(x_i) + sum_{i=1}^d r_i x_i
     """
     mu = -np.max(r) - 1
     err = np.abs(-np.sum(1/(r + mu)) - 1)
@@ -73,9 +75,6 @@ class ETC:
         self.T = T
         self.phase = 1
         self.t = 0
-        self.c = c
-        self.f = f
-        self.w = w
         self.muhat = np.zeros_like(lambdas)  # Mean estimate
         self.muhat1 = np.zeros_like(lambdas)  # Mean estimate
         self.muhat2 = np.zeros_like(lambdas)  # Mean estimate
@@ -90,42 +89,65 @@ class ETC:
         K = len(self.lambdas)
         T = self.T
         lambdas = self.lambdas
-        c = self.c
-        f = self.f
-        w = self.w
 
         self.phase = 1
         for k in range(K):
-            if self.N1[k] <  self.f[k] * T:
+            if self.N1[k] <  lambdas[k]/4 * T:
                 p = np.zeros(K)
                 p[k] = 1
                 return p
 
         self.phase = 2
         for k in range(K):
-            if self.N2[k] < c * lambdas[k]/self.mu_estimate1[k]* T:
-                p = np.zeros(K)
-                p[k] = 1
-                return p
+            if lambdas[k] > 0:
+                N2k1 = np.min(lambdas[k]/(6 * self.mu_estimate1[k]), lambdas[k] / 2) * T
+                if  N2k1 >= T/2:
+                    if self.N2[k] < lambdas[k] / 2 * T:
+                        p = np.zeros(K)
+                        p[k] = 1
+                        return p
+                else:
+                    if self.N2[k] <  N2k1:
+                        p = np.zeros(K)
+                        p[k] = 1
+                        return p
 
         self.phase = 3
         for k in range(K):
-            condk = lambdas[k] / self.mu_estimate2[k] 
-            condk -= c * lambdas[k] / self.mu_estimate1[k]
-            condk -= f[k]
-            condk -=  w[k] * max((np.sum(lambdas/self.mu_estimate2) - 1), 0)
-            condk = max(condk, 0) * T
-            if self.N3[k] < condk:
+            if lambdas[k] > 0:
+                I = lambdas > 0
+                N1k = lambdas[k]/4 * T
+                N2k1 = np.min(lambdas[k]/(6 * self.mu_estimate1[k]), lambdas[k] / 2) * T
+                if N2k1 >= T/2:
+                    N2k = lambdas[k]/2 * T
+                else:
+                    N2k = N2k1
+                if np.sum(lambdas[I]/self.mu_estimate2[I]) > 1:
+                    ucb = kl_ucb(self.t, self.N2, self.mu_estimate2, self.lambdas)
+                    if np.sum(lambdas[I]/ ucb[I]) > 1:
+                        p = np.zeros(K)
+                        p[np.argmax(ucb)] = 1
+                        return p
+                    elif self.N3[k] < np.maximum(self.lambdas[k] * T/ ucb[k] - N1k - N2k, 0):
+                        p = np.zeros(K)
+                        p[k] = 1
+                        return p
+                elif self.N3[k] < np.maximum(self.lambdas[k] * T / self.mu_estimate2[k] - N1k - N2k, 0):
+                    p = np.zeros(K)
+                    p[k] = 1
+                    return p
+
+        self.phase = 4
+        for k in range(K):
+            if self.N[k] == 0:
                 p = np.zeros(K)
                 p[k] = 1
                 return p
 
-        self.phase = 4
         p = np.zeros(K)
         i = np.argmax(kl_ucb(self.t, self.N, self.muhat, self.lambdas))
         p[i] = 1
         return p
-
 
     def update(self, k, r, x=None):
         self.muhat[k] = (self.N[k] * self.muhat[k] + r) / (self.N[k] + 1)
@@ -202,7 +224,7 @@ class GeneralAlgo:
     General class that subsume any Bandit or Fairness allocation algorithm
     """
 
-    def __init__(self, lambdas, mu_tilde_estimate) -> None:
+    def __init__(self, lambdas, mu_tilde_estimate, normalize=True) -> None:
         """
         Parameters
         -----------
@@ -216,6 +238,7 @@ class GeneralAlgo:
         self.muhat = np.zeros(K)  # Mean estimate
         self.N = np.zeros(K)  # Number of times each arm has been observed
         self.mu_tilde_estimate = mu_tilde_estimate
+        self.normalize = normalize
         self.t = 0  # Current timestep
 
     def play(self):
@@ -233,8 +256,21 @@ class Fair(GeneralAlgo):
         I = self.lambdas != 0
         p = np.zeros_like(mu_tilde)
         p[I] =  self.lambdas[I] / mu_tilde[I]
-        if np.sum(p) > 1:
-            return p / np.sum(p)
+        if np.sum(p) >= 1:
+            if self.normalize:
+                res = p / np.sum(p)
+                res = res / np.sum(res)
+                return res
+            else:
+                mu_tilde_ucb = kl_ucb(self.t, self.N, self.muhat, self.lambdas)
+                p_ucb = np.zeros_like(mu_tilde_ucb)
+                p_ucb[I] =  self.lambdas[I] / mu_tilde_ucb[I]
+                if np.sum(p_ucb) >= 1:
+                    res = p / np.sum(p)
+                    res = res / np.sum(res)
+                    return res
+                else:
+                    return p_ucb
         else:
             return p
 
@@ -246,7 +282,7 @@ class Bandit(GeneralAlgo):
 
 
 class FairBandit:
-    def __init__(self, fairalgo, bandit) -> None:
+    def __init__(self, fairalgo, bandit, normalize=True) -> None:
         self.bandit = bandit
         self.fairalgo = fairalgo
 

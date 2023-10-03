@@ -32,6 +32,44 @@ def do_exp(seed, lambdas, mus, T, mab_algo):
         iterations.append(t)
     return iterations, cum_fairness, cum_regrets, abs_cum_deviation, p_t
 
+def test_banditq():
+    T = 5000
+    feasibility_gap = 0.1
+    mus = np.array([0.8, 0.9, 0.7])
+    lambdas = mus / len(mus) * (1 - feasibility_gap)
+    cum_regret_t = 0
+    cum_fairness_t = 0
+    algo = BanditQ(lambdas, T)
+    rng = np.random.RandomState(None)
+    p_opt = mab_opt(mus, lambdas)
+    p_avg  = np.zeros_like(p_opt)
+    etas = []
+    cum_fairnesses = []
+    ts = []
+    for t in range(T):
+        p_t = algo.play()
+        k_t, r_t = mab_environment(p_t, mus, rng)
+        algo.update(k_t, r_t, p_t)
+        cum_regret_t += np.sum((p_opt - p_t) * mus)
+        cum_fairness_t += lambdas - p_t * mus
+        etas.append(algo.eta)
+        p_avg += p_t
+        if t % (T // 1000) == 0:
+            cum_fairnesses.append(cum_fairness_t/t)
+            ts.append(t)
+    p_avg = p_avg / T
+
+    import matplotlib.pyplot as plt
+    plt.plot(ts, cum_fairnesses)
+    plt.axhline(0)
+    plt.show()
+
+    print(p_avg, p_opt)
+    print(cum_regret_t)
+
+
+
+
 def test_opt():
     seed = 5
     lambdas = np.array([0.2, 0.1, 0.25])
