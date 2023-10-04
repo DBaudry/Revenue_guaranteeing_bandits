@@ -1,16 +1,17 @@
 import numpy as np
 import warnings
 
+
 class LagrangeBwK:
     def __init__(self, lambdas, T):
         K = len(lambdas)
         self.lambdas = lambdas
         self.T = T
-        self.gamma = min(3/5, 2 * np.sqrt(3/5 * K * np.log(K) / T))
+        self.gamma = min(3 / 5, 2 * np.sqrt(3 / 5 * K * np.log(K) / T))
         self.alpha = 2 * np.sqrt(np.log(K * T**2))
         self.Wx = np.ones(K)
         self.Wrho = np.ones(K)
-        self.t  = 0
+        self.t = 0
         self.eta = np.sqrt(T / np.sqrt(K * T * np.log(K * T)))
 
     def play(self):
@@ -22,15 +23,16 @@ class LagrangeBwK:
         alpha = self.alpha
         T = self.T
         K = len(lambdas)
-        g = - np.copy(lambdas)
+        g = -np.copy(lambdas)
         g[k] = g[k] + r
-        self.Wrho *= np.exp(-np.sqrt(np.log(K)/T) * g)
+        self.Wrho *= np.exp(-np.sqrt(np.log(K) / T) * g)
         Wrho = self.Wrho
         rho = Wrho / np.sum(Wrho)
         l = (r + self.eta * rho.dot(g)) / (self.eta + 1)
-        self.Wx *= np.exp(gamma / (3*K) * alpha/(x * np.sqrt(K * T)))
-        self.Wx[k] *= np.exp(gamma / (3*K) * l /x[j])
+        self.Wx *= np.exp(gamma / (3 * K) * alpha / (x * np.sqrt(K * T)))
+        self.Wx[k] *= np.exp(gamma / (3 * K) * l / x[j])
         self.t += 1
+
 
 class BanditQ:
     def __init__(self, lambdas, T) -> None:
@@ -38,7 +40,7 @@ class BanditQ:
         d = len(lambdas)
         self.Q = np.zeros(d)
         self.p = np.ones(d) / d
-        self.cum_r =np.zeros(d)
+        self.cum_r = np.zeros(d)
         self.eta = d
         self.S = 1
         self.V = np.sqrt(T)
@@ -50,11 +52,11 @@ class BanditQ:
         """
         d = len(self.Q)
         if self.t == 0:
-            gamma = 1/2
+            gamma = 1 / 2
         else:
-            gamma = min(1/2, np.sqrt(d/self.t))
+            gamma = min(1 / 2, np.sqrt(d / self.t))
 
-        x = (1- gamma) * self.p + gamma / (d * np.ones(d))
+        x = (1 - gamma) * self.p + gamma / (d * np.ones(d))
         return x
 
     def update(self, k, r, x):
@@ -72,12 +74,13 @@ class BanditQ:
         r_tilde[k] = (self.Q[k] + self.V) * r / x[k]
         self.cum_r[k] += r_tilde[k]
         p = self.p
-        q = maxlog(self.eta * r_tilde - 1/p)
-        breg = - np.sum(np.log(q)) + np.sum(np.log(p)) + np.sum((q - p) / p)
-        self.S = self.S + (np.dot(r_tilde, q - p) - breg/self.eta )
+        q = maxlog(self.eta * r_tilde - 1 / p)
+        breg = -np.sum(np.log(q)) + np.sum(np.log(p)) + np.sum((q - p) / p)
+        self.S = self.S + (np.dot(r_tilde, q - p) - breg / self.eta)
         self.eta = d / self.S
         self.p = maxlog(self.cum_r * self.eta)
         self.t += 1
+
 
 def maxlog(r, tol=1e-8, max_iter=100):
     """
@@ -85,17 +88,18 @@ def maxlog(r, tol=1e-8, max_iter=100):
     argmax sum_{i=1}^d log(x_i) + sum_{i=1}^d r_i x_i
     """
     mu = -np.max(r) - 1
-    err = np.abs(-np.sum(1/(r + mu)) - 1)
+    err = np.abs(-np.sum(1 / (r + mu)) - 1)
     for i in range(max_iter):
-        inv = -1/(r + mu)
+        inv = -1 / (r + mu)
         num = -(np.sum(inv) - 1)
-        denum = np.sum(inv ** 2)
-        mu = mu + num/denum
-        err = np.abs(-np.sum(1/(r + mu)) - 1)
+        denum = np.sum(inv**2)
+        mu = mu + num / denum
+        err = np.abs(-np.sum(1 / (r + mu)) - 1)
         if err < tol:
             return -1 / (r + mu)
     warnings.warn("MaxLog did not converge, current error is %f" % err)
     return -1 / (r + mu)
+
 
 class ETC:
     def __init__(self, lambdas, T, f, c, w):
@@ -120,7 +124,7 @@ class ETC:
 
         self.phase = 1
         for k in range(K):
-            if self.N1[k] <  lambdas[k]/4 * T:
+            if self.N1[k] < lambdas[k] / 4 * T:
                 p = np.zeros(K)
                 p[k] = 1
                 return p
@@ -128,14 +132,14 @@ class ETC:
         self.phase = 2
         for k in range(K):
             if lambdas[k] > 0:
-                N2k1 = min(lambdas[k]/(6 * self.mu_estimate1[k]), lambdas[k] / 2) * T
-                if  N2k1 >= T/2:
+                N2k1 = min(lambdas[k] / (6 * self.mu_estimate1[k]), lambdas[k] / 2) * T
+                if N2k1 >= T / 2:
                     if self.N2[k] < lambdas[k] / 2 * T:
                         p = np.zeros(K)
                         p[k] = 1
                         return p
                 else:
-                    if self.N2[k] <  N2k1:
+                    if self.N2[k] < N2k1:
                         p = np.zeros(K)
                         p[k] = 1
                         return p
@@ -144,23 +148,27 @@ class ETC:
         for k in range(K):
             if lambdas[k] > 0:
                 I = lambdas > 0
-                N1k = lambdas[k]/4 * T
-                N2k1 = min(lambdas[k]/(6 * self.mu_estimate1[k]), lambdas[k] / 2) * T
-                if N2k1 >= T/2:
-                    N2k = lambdas[k]/2 * T
+                N1k = lambdas[k] / 4 * T
+                N2k1 = min(lambdas[k] / (6 * self.mu_estimate1[k]), lambdas[k] / 2) * T
+                if N2k1 >= T / 2:
+                    N2k = lambdas[k] / 2 * T
                 else:
                     N2k = N2k1
-                if np.sum(lambdas[I]/self.mu_estimate2[I]) > 1:
+                if np.sum(lambdas[I] / self.mu_estimate2[I]) > 1:
                     ucb = kl_ucb(self.t, self.N2, self.mu_estimate2, self.lambdas)
-                    if np.sum(lambdas[I]/ ucb[I]) > 1:
+                    if np.sum(lambdas[I] / ucb[I]) > 1:
                         p = np.zeros(K)
                         p[np.argmax(ucb)] = 1
                         return p
-                    elif self.N3[k] < np.maximum(self.lambdas[k] * T/ ucb[k] - N1k - N2k, 0):
+                    elif self.N3[k] < np.maximum(
+                        self.lambdas[k] * T / ucb[k] - N1k - N2k, 0
+                    ):
                         p = np.zeros(K)
                         p[k] = 1
                         return p
-                elif self.N3[k] < np.maximum(self.lambdas[k] * T / self.mu_estimate2[k] - N1k - N2k, 0):
+                elif self.N3[k] < np.maximum(
+                    self.lambdas[k] * T / self.mu_estimate2[k] - N1k - N2k, 0
+                ):
                     p = np.zeros(K)
                     p[k] = 1
                     return p
@@ -195,8 +203,9 @@ class ETC:
         if self.phase == 3:
             self.N3[k] += 1
 
+
 class ETCAnytime:
-    def __init__(self, lambdas, T, rng:np.random.RandomState):
+    def __init__(self, lambdas, T, rng: np.random.RandomState):
         self.lambdas = lambdas
         self.T = T
         self.N = np.zeros_like(lambdas)
@@ -218,7 +227,11 @@ class ETCAnytime:
         if np.sum(lambdas / self.mu_estimate1) <= 1:
             proba[1] = np.sum(lambdas / self.mu_estimate1 - lambdas)
         else:
-            proba[1] = np.sum(lambdas / self.mu_estimate1 - lambdas)  / np.sum(lambdas / self.mu_estimate1 - lambdas) * (1 - np.sum(lambdas))
+            proba[1] = (
+                np.sum(lambdas / self.mu_estimate1 - lambdas)
+                / np.sum(lambdas / self.mu_estimate1 - lambdas)
+                * (1 - np.sum(lambdas))
+            )
         proba[2] = 1 - np.sum(proba[:2])
 
         i = self.rng.choice([0, 1, 2], p=proba)
@@ -242,6 +255,7 @@ class ETCAnytime:
             self.muhat1[k] = (self.N1[k] * self.muhat1[k] + r) / (self.N1[k] + 1)
             self.mu_estimate1 = clip(self.muhat1, self.lambdas)
             self.N1[k] += 1
+
 
 class GeneralAlgo:
     """
@@ -273,12 +287,13 @@ class GeneralAlgo:
         self.N[k] = self.N[k] + 1
         self.t += 1
 
+
 class Fair(GeneralAlgo):
     def play(self):
         mu_tilde = self.mu_tilde_estimate(self.t, self.N, self.muhat, self.lambdas)
         I = self.lambdas != 0
         p = np.zeros_like(mu_tilde)
-        p[I] =  self.lambdas[I] / mu_tilde[I]
+        p[I] = self.lambdas[I] / mu_tilde[I]
         if np.sum(p) >= 1:
             if self.normalize:
                 res = p / np.sum(p)
@@ -287,7 +302,7 @@ class Fair(GeneralAlgo):
             else:
                 mu_tilde_ucb = kl_ucb(self.t, self.N, self.muhat, self.lambdas)
                 p_ucb = np.zeros_like(mu_tilde_ucb)
-                p_ucb[I] =  self.lambdas[I] / mu_tilde_ucb[I]
+                p_ucb[I] = self.lambdas[I] / mu_tilde_ucb[I]
                 if np.sum(p_ucb) >= 1:
                     res = p / np.sum(p)
                     res = res / np.sum(res)
@@ -297,10 +312,12 @@ class Fair(GeneralAlgo):
         else:
             return p
 
+
 class Bandit(GeneralAlgo):
     def play(self):
         mu_tilde = self.mu_tilde_estimate(self.t, self.N, self.muhat, self.lambdas)
         return np.argmax(mu_tilde)
+
 
 class FairBandit:
     def __init__(self, fairalgo, bandit, normalize=True) -> None:
@@ -325,26 +342,33 @@ class FairBandit:
         self.fairalgo.update(k, r)
         self.bandit.update(k, r)
 
+
 def greedy(t, N, muhat, lambdas):
     return np.maximum(muhat, lambdas)
+
 
 def clip(x, lambdas):
     return np.minimum(np.maximum(x, lambdas), 1)
 
+
 def ucb(t, N, muhat, lambdas):
     return clip(muhat + np.sqrt(2 * np.log(t) / N), lambdas)
+
 
 def lcb(t, N, muhat, lambdas):
     return clip(muhat - np.sqrt(2 * np.log(t) / N), lambdas)
 
+
 def mu_opt(mus):
     return lambda w, x, y, z: mus
+
 
 def mab_opt(mus, lambdas):
     p = lambdas / mus
     k = np.argmax(mus)
     p[k] = p[k] + (1 - np.sum(p))
     return p
+
 
 def kl(p, q):
     if p == 0:
@@ -357,6 +381,7 @@ def kl(p, q):
 
     res = p * np.log(p / q) + (1 - p) * np.log((1 - p) / (1 - q))
     return res
+
 
 def dichotomy(lower, upper, f, target, precision=1e-6):
     """Dichotomy to approach x_star such that f(x_star) = target for f
@@ -396,6 +421,7 @@ def dichotomy(lower, upper, f, target, precision=1e-6):
     else:
         return lower
 
+
 def kl_ucb(t, N, muhat, lambdas, precision=1e-6):
     """Solving kl(muhat, q) = 2 log(t)/N_k(t) for q greater than p"""
     return clip(
@@ -407,6 +433,7 @@ def kl_ucb(t, N, muhat, lambdas, precision=1e-6):
         ),
         lambdas,
     )
+
 
 def kl_lcb(t, N, muhat, lambdas, precision=1e-6):
     """Solving kl(muhat, q) = 2 log(t)/t for q greater than p"""
