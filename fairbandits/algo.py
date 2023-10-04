@@ -1,6 +1,9 @@
 import numpy as np
 import warnings
 
+def exp_over_sum(v):
+    maxv = np.max(v)
+    return np.exp(v-maxv) / np.sum(np.exp(v - maxv))
 
 class LagrangeBwK:
     def __init__(self, lambdas, T):
@@ -9,15 +12,16 @@ class LagrangeBwK:
         self.T = T
         self.gamma = min(3 / 5, 2 * np.sqrt(3 / 5 * K * np.log(K) / T))
         self.alpha = 2 * np.sqrt(np.log(K * T**2))
-        self.Wx = np.ones(K)
-        self.Wrho = np.ones(K)
+        self.Wx = np.zeros(K)
+        self.Wrho = np.zeros(K)
         self.t = 0
         self.eta = np.sqrt(T / np.sqrt(K * T * np.log(K * T)))
 
     def play(self):
-        return (1 - self.gamma) * self.Wx / np.sum(self.Wx) + self.gamma / K
+        K = len(self.lambdas)
+        return (1 - self.gamma) * exp_over_sum(self.Wx) + self.gamma / K
 
-    def update(k, r, x):
+    def update(self, k, r, x):
         lambdas = self.lambdas
         gamma = self.gamma
         alpha = self.alpha
@@ -25,12 +29,11 @@ class LagrangeBwK:
         K = len(lambdas)
         g = -np.copy(lambdas)
         g[k] = g[k] + r
-        self.Wrho *= np.exp(-np.sqrt(np.log(K) / T) * g)
-        Wrho = self.Wrho
-        rho = Wrho / np.sum(Wrho)
+        self.Wrho -= np.sqrt(np.log(K) / T) * g
+        rho = exp_over_sum(self.Wrho)
         l = (r + self.eta * rho.dot(g)) / (self.eta + 1)
-        self.Wx *= np.exp(gamma / (3 * K) * alpha / (x * np.sqrt(K * T)))
-        self.Wx[k] *= np.exp(gamma / (3 * K) * l / x[j])
+        self.Wx += gamma / (3 * K) * alpha / (x * np.sqrt(K * T))
+        self.Wx[k] += gamma / (3 * K) * l / x[k]
         self.t += 1
 
 

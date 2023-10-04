@@ -1,6 +1,6 @@
 # MAB experiment
 
-from fairbandits.algo import FairBandit, Fair, Bandit, greedy, ucb, lcb, mab_opt, mu_opt, kl_ucb, kl, kl_lcb, maxlog
+from fairbandits.algo import FairBandit, Fair, Bandit, greedy, ucb, lcb, mab_opt, mu_opt, kl_ucb, kl, kl_lcb, maxlog, LagrangeBwK
 from fairbandits.environment import mab_environment
 from joblib import Parallel, delayed
 import numpy as np
@@ -31,6 +31,53 @@ def do_exp(seed, lambdas, mus, T, mab_algo):
         abs_cum_deviation.append(np.copy(cum_deviation_t))
         iterations.append(t)
     return iterations, cum_fairness, cum_regrets, abs_cum_deviation, p_t
+
+def test_lagrangian():
+    T = 10000
+    cum_fairnesses = []
+    cum_regret = []
+    ts = []
+    # for T in np.arange(1, 6) * 10000:
+    for T in [1000, 2000, 3000, 4000, 5000]:
+        print(T)
+        feasibility_gap = 0.9
+        mus = np.array([0.7, 0.9, 0.8])
+        lambdas = mus / len(mus) * (1 - feasibility_gap)
+        cum_regret_t = 0
+        cum_fairness_t = 0
+        algo = LagrangeBwK(lambdas, T)
+        rng = np.random.RandomState(None)
+        p_opt = mab_opt(mus, lambdas)
+        print("OPT", p_opt)
+        p_avg  = np.zeros_like(p_opt)
+        etas = []
+        for t in range(T):
+            p_t = algo.play()
+            k_t, r_t = mab_environment(p_t, mus, rng)
+            algo.update(k_t, r_t, p_t)
+            cum_regret_t += np.sum((p_opt - p_t) * mus)
+            cum_fairness_t += lambdas - p_t * mus
+            etas.append(algo.eta)
+            p_avg += p_t
+        print(p_avg / T)
+        cum_fairnesses.append(cum_fairness_t/t)
+        cum_regret.append(cum_regret_t)
+        ts.append(T)
+            
+
+    import matplotlib.pyplot as plt
+    f, axes = plt.subplots(nrows=2)
+    axes[0].set_title("Fairness")
+    axes[0].plot(ts, cum_fairnesses, marker="*")
+    axes[0].axhline(0)
+    axes[1].set_title("Regret")
+    axes[1].plot(ts, cum_regret, marker="*")
+    axes[1].axhline(0)
+    plt.legend()
+    plt.show()
+
+    print(p_avg, p_opt)
+    print(cum_regret_t)
 
 def test_banditq():
     T = 5000
