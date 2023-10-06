@@ -13,7 +13,7 @@ def do_exp(seed, lambdas, mus, T, name):
     p_opt = mab_opt(mus, lambdas)
     rng = np.random.RandomState(seed)
 
-    # For non anytime algos let's just record 5 points
+    # For non anytime algos let's just record 10 points
     if name in ["ETC", "BanditQ"]:
         iterations = []
         cum_regrets = []
@@ -21,8 +21,8 @@ def do_exp(seed, lambdas, mus, T, name):
         cum_fairness = []
         pr_fairness = []
         abs_cum_deviation = []
-        for i in range(5):
-            R = int(np.floor(T/5) * (i+1))
+        for i in range(10):
+            R = int(np.floor(T/10) * (i+1))
             if name == "ETC":
                 mab_algo = ETC(lambdas, R, lambdas/4, 1/6, 1/K*np.ones(K))
             elif name == "BanditQ":
@@ -49,7 +49,7 @@ def do_exp(seed, lambdas, mus, T, name):
             iterations.append(r)
         return iterations, cum_fairness, cum_regrets, abs_cum_deviation, pr_fairness, pr_regrets
 
-    # Otherwise, we record 100 points
+    # Otherwise, we record 200 points
     if name == "greedy-UCB":
         mab_algo = FairBandit(Fair(lambdas, greedy, normalize=False), Bandit(lambdas, kl_ucb))
     elif name == "KL-LCB-UCB":
@@ -86,9 +86,12 @@ def do_exp(seed, lambdas, mus, T, name):
 
         if t % (T // 200) == 0:
             cum_regrets.append(np.copy(cum_regret_t))
+            pr_regrets.append(np.copy(pr_regret_t))
             cum_fairness.append(np.copy(cum_fairness_t))
             abs_cum_deviation.append(np.copy(cum_deviation_t))
             iterations.append(t)
+            pr_fairness.append(np.copy(pr_fairness_t))
+
     return iterations, cum_fairness, cum_regrets, abs_cum_deviation, pr_fairness, pr_regrets
 
 seeds = 200

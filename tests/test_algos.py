@@ -38,11 +38,14 @@ def test_lagrangian():
     cum_regret = []
     ts = []
     # for T in np.arange(1, 6) * 10000:
-    for T in [1000, 2000, 3000, 4000, 5000]:
+    for Tt in np.arange(1, 10) * 10000:
+        T  = int(Tt)
         print(T)
-        feasibility_gap = 0.9
+        feasibility_gap = 0.95
         mus = np.array([0.7, 0.9, 0.8])
         lambdas = mus / len(mus) * (1 - feasibility_gap)
+        lambdas = np.array([0.25, 0.25, 0.25])
+        print(np.sum(lambdas/mus))
         cum_regret_t = 0
         cum_fairness_t = 0
         algo = LagrangeBwK(lambdas, T)
@@ -61,7 +64,7 @@ def test_lagrangian():
             p_avg += p_t
         print(p_avg / T)
         cum_fairnesses.append(cum_fairness_t/t)
-        cum_regret.append(cum_regret_t)
+        cum_regret.append(cum_regret_t / t)
         ts.append(T)
             
 

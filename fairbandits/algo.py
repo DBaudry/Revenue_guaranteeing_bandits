@@ -27,11 +27,12 @@ class LagrangeBwK:
         alpha = self.alpha
         T = self.T
         K = len(lambdas)
-        g = -np.copy(lambdas)
-        g[k] = g[k] + r
+        g = -np.ones(K)
+        g[k] = g[k] + r/lambdas[k]
+        g = g * np.min(lambdas)
         self.Wrho -= np.sqrt(np.log(K) / T) * g
         rho = exp_over_sum(self.Wrho)
-        l = (r + self.eta * rho.dot(g)) / (self.eta + 1)
+        l = (r + self.eta * rho.dot(g)) / (self.eta * np.sum(1 / lambdas - 1) + 1)
         self.Wx += gamma / (3 * K) * alpha / (x * np.sqrt(K * T))
         self.Wx[k] += gamma / (3 * K) * l / x[k]
         self.t += 1
