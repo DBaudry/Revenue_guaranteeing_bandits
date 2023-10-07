@@ -123,7 +123,7 @@ for feasibility_gap in [0, 0.1, 0.5, 0.9]:
         mus=mus,
         lambdas=mus / len(mus) * (1 - feasibility_gap),
         K=K,
-        T=2000,
+        T=100000,
         algos=algos,
     )
     dump(plot, "plotting/data/%s_%s" % (exp, str(feasibility_gap)))
@@ -142,7 +142,7 @@ for feasibility_gap in [0, 0.1, 0.5, 0.9]:
 # Experiments 5: Reproducing bandit Q setting
 exp = "main_paper_exp5"
 print(exp)
-T = 2000
+T = 100000
 mus = np.array([0.335, 0.203, 0.241, 0.781, 0.617])
 lambdas = np.array([0.167, 0.067, 0, 0, 0])
 K = len(mus)
@@ -164,7 +164,7 @@ Very small mus except one
 """
 exp = "main_paper_exp6"
 print(exp)
-T = 1000
+T = 5000
 mus = np.array([0.8, 0.9, 0.7]) * 1 / np.sqrt(T)
 feasibility_gap = 0
 K = len(mus)
