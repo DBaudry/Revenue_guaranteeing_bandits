@@ -460,6 +460,15 @@ def dichotomy(lower, upper, f, target, precision=1e-6):
 
 def kl_ucb(t, N, muhat, lambdas, precision=1e-6):
     """Solving kl(muhat, q) = 2 log(t)/N_k(t) for q greater than p"""
+    K = len(N)
+    A = np.zeros(K)
+    for k in range(K):
+        if N[k] == 0:
+            A[k] = 1
+        else:
+            A[k] = dichotomy(muhat[k], 1, lambda x: kl(muhat[k], x), 2 * np.log(t) / N[k])
+    return clip(A, lambdas)
+
     return clip(
         np.array(
             [
@@ -473,12 +482,11 @@ def kl_ucb(t, N, muhat, lambdas, precision=1e-6):
 
 def kl_lcb(t, N, muhat, lambdas, precision=1e-6):
     """Solving kl(muhat, q) = 2 log(t)/t for q greater than p"""
-    return clip(
-        np.array(
-            [
-                dichotomy(0, muhat[k], lambda x: kl(muhat[k], x), 2 * np.log(t) / N[k])
-                for k in range(len(N))
-            ]
-        ),
-        lambdas,
-    )
+    K = len(N)
+    A = np.zeros(K)
+    for k in range(K):
+        if N[k] == 0:
+            A[k] = 0
+        else:
+            A[k] = dichotomy(0, muhat[k], lambda x: kl(muhat[k], x), 2 * np.log(t) / N[k])
+    return clip(A, lambdas)
