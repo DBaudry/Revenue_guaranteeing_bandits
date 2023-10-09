@@ -1,7 +1,7 @@
 # MAB experiment
 
 import numpy as np
-from fairbandits.algo import FairBandit, Fair, Bandit, greedy, kl_ucb, kl_lcb, mab_opt, ETC, ETCAnytime, BanditQ
+from fairbandits.algo import FairBandit, Fair, Bandit, greedy, kl_ucb, kl_lcb, mab_opt, ETC, ETCAnytime, BanditQ, FairnessBaseline
 from fairbandits.environment import mab_environment
 from joblib import Parallel, delayed, dump
 import os
@@ -60,6 +60,8 @@ def do_exp(seed, lambdas, mus, T, name):
         mab_algo = FairBandit(Fair(lambdas, kl_ucb), Bandit(lambdas, kl_ucb))
     elif name == "KL-LCB":
         mab_algo = FairBandit(Fair(lambdas, kl_lcb), Bandit(lambdas, kl_ucb))
+    elif name == "Baseline":
+        mab_algo = FairnessBaseline(lambdas)
     else:
         raise ValueError("%s does not exists" % name)
 
@@ -96,7 +98,7 @@ def do_exp(seed, lambdas, mus, T, name):
 
 seeds = 200
 T = 100000
-algo_names = ["greedy","KL-UCB", "KL-LCB", "KL-LCB-UCB", "greedy-UCB", "ETC", "BanditQ"]
+algo_names = ["greedy","KL-UCB", "KL-LCB", "KL-LCB-UCB", "greedy-UCB", "ETC", "BanditQ", "Baseline"]
 
 """Experiments 1
 Different feasibility gaps lambdas proportional to mus

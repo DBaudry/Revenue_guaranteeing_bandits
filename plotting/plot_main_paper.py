@@ -10,32 +10,43 @@ import os
 
 cmap = plt.get_cmap("tab10")
 
+rc = {
+    "pdf.fonttype": 42,
+    "text.usetex": True,
+    "font.size": 16,
+    "xtick.labelsize": 16,
+    "ytick.labelsize": 16,
+    "text.usetex": True,
+    "font.family": "serif",
+}
+plt.rcParams.update(rc)
+
 COLORS = {
-    "greedy": cmap(1),
-    "KL-UCB": cmap(2),
-    "KL-LCB": cmap(3),
-    "KL-LCB-UCB": cmap(4),
-    "greedy-UCB": cmap(5),
-    "ETC": cmap(6),
-    "BanditQ": cmap(7),
+    "greedy": cmap(6),
+    "KL-UCB": cmap(3),
+    "KL-LCB": cmap(7),
+    "KL-LCB-UCB": cmap(2),
+    "greedy-UCB": cmap(1),
+    "ETC": cmap(4),
+    "BanditQ": cmap(5),
 }
 
 
 LABELS = {
-    "greedy": "greedy",
-    "KL-UCB": "KL-UCB (with normalization)",
-    "KL-LCB": "KL-LCB (with normalization)",
-    "KL-LCB-UCB": "KL-LCB (with UCB switch)",
-    "greedy-UCB": "greedy (with UCB switch)",
-    "ETC": "ETC",
+    "greedy": "GOCK (with normalization)",
+    "KL-UCB": "DOCK",
+    "KL-LCB": "POCK (with normalization)",
+    "KL-LCB-UCB": "SPOCK",
+    "greedy-UCB": "GOCK",
+    "ETC": "Phase-GOCK",
     "BanditQ": "BanditQ",
 }
 
 
 MARKERS = {
     "greedy": None,
-    "greedy-UCB": "+",
-    "KL-LCB-UCB": "x",
+    "greedy-UCB": None,
+    "KL-LCB-UCB": None,
     "KL-UCB": None,
     "KL-LCB": None,
     "ETC": "*",
@@ -43,10 +54,22 @@ MARKERS = {
 }
 
 
-def do_plot(algos, plot, subopt_arms, fairness_path, bandit_path, lb_path):
+LINESTYLE = {
+    "greedy": "solid",
+    "greedy-UCB": "solid",
+    "KL-LCB-UCB": "dotted",
+    "KL-UCB": "dashed",
+    "KL-LCB": "solid",
+    "ETC": "solid",
+    "BanditQ": "solid",
+}
 
+
+def do_plot(algos, pr_exclude, plot, subopt_arms, fairness_path, bandit_path, lb_path):
     plt.figure()
     for algo in algos:
+        if algo in pr_exclude:
+            continue
         iterations = plot[algo][-1]
         plt.fill_between(
             iterations,
@@ -55,7 +78,14 @@ def do_plot(algos, plot, subopt_arms, fairness_path, bandit_path, lb_path):
             color=COLORS[algo],
             alpha=0.1,
         )
-        plt.plot(iterations, plot[algo][5][2], color=COLORS[algo], label=LABELS[algo], marker=MARKERS[algo])
+        plt.plot(
+            iterations,
+            plot[algo][5][2],
+            color=COLORS[algo],
+            label=LABELS[algo],
+            marker=MARKERS[algo],
+            linestyle=LINESTYLE[algo],
+        )
     plt.legend()
     plt.xlabel("Horizon (T)")
     plt.ylabel("Bandit regret")
@@ -63,9 +93,10 @@ def do_plot(algos, plot, subopt_arms, fairness_path, bandit_path, lb_path):
     plt.savefig(bandit_path + "pr.png", bbox_inches="tight")
     plt.close()
 
-
     plt.figure()
     for algo in algos:
+        if algo in pr_exclude:
+            continue
         iterations = plot[algo][-1]
         plt.fill_between(
             iterations,
@@ -74,7 +105,14 @@ def do_plot(algos, plot, subopt_arms, fairness_path, bandit_path, lb_path):
             color=COLORS[algo],
             alpha=0.1,
         )
-        plt.plot(iterations, plot[algo][4][2], color=COLORS[algo], label=LABELS[algo], marker=MARKERS[algo])
+        plt.plot(
+            iterations,
+            plot[algo][4][2],
+            color=COLORS[algo],
+            label=LABELS[algo],
+            marker=MARKERS[algo],
+            linestyle=LINESTYLE[algo],
+        )
     plt.legend()
     plt.xlabel("Horizon (T)")
     plt.ylabel("Fairness regret")
@@ -92,7 +130,14 @@ def do_plot(algos, plot, subopt_arms, fairness_path, bandit_path, lb_path):
             color=COLORS[algo],
             alpha=0.1,
         )
-        plt.plot(iterations, plot[algo][1][2], color=COLORS[algo], label=LABELS[algo], marker=MARKERS[algo])
+        plt.plot(
+            iterations,
+            plot[algo][1][2],
+            color=COLORS[algo],
+            label=LABELS[algo],
+            marker=MARKERS[algo],
+            linestyle=LINESTYLE[algo],
+        )
     plt.legend()
     plt.xlabel("Horizon (T)")
     plt.ylabel("Long term Fairness regret")
@@ -110,7 +155,14 @@ def do_plot(algos, plot, subopt_arms, fairness_path, bandit_path, lb_path):
             color=COLORS[algo],
             alpha=0.1,
         )
-        plt.plot(iterations, plot[algo][0][2], color=COLORS[algo], label=LABELS[algo], marker=MARKERS[algo])
+        plt.plot(
+            iterations,
+            plot[algo][0][2],
+            color=COLORS[algo],
+            label=LABELS[algo],
+            marker=MARKERS[algo],
+            linestyle=LINESTYLE[algo],
+        )
     plt.legend()
     plt.xlabel("Horizon (T)")
     plt.ylabel("Long term Fairness regret")
@@ -128,7 +180,14 @@ def do_plot(algos, plot, subopt_arms, fairness_path, bandit_path, lb_path):
             color=COLORS[algo],
             alpha=0.1,
         )
-        plt.plot(iterations, plot[algo][2][2], color=COLORS[algo], label=LABELS[algo], marker=MARKERS[algo])
+        plt.plot(
+            iterations,
+            plot[algo][2][2],
+            color=COLORS[algo],
+            label=LABELS[algo],
+            marker=MARKERS[algo],
+            linestyle=LINESTYLE[algo],
+        )
     plt.legend()
     plt.xlabel("Horizon (T)")
     plt.ylabel("Long term Bandit regret")
@@ -153,7 +212,9 @@ def do_plot(algos, plot, subopt_arms, fairness_path, bandit_path, lb_path):
                     iterations,
                     plot[algo][3][2][:, i],
                     color=COLORS[algo],
-                    label=LABELS[algo], marker=MARKERS[algo],
+                    label=LABELS[algo],
+                    marker=MARKERS[algo],
+                    linestyle=LINESTYLE[algo],
                 )
             else:
                 plt.plot(iterations, plot[algo][3][2][:, i], color=COLORS[algo])
@@ -166,7 +227,8 @@ def do_plot(algos, plot, subopt_arms, fairness_path, bandit_path, lb_path):
     plt.close()
 
 
-algos = ["greedy", "greedy-UCB", "KL-LCB-UCB", "KL-UCB", "KL-LCB", "ETC", "BanditQ"]
+algos = ["greedy-UCB", "KL-UCB",  "KL-LCB-UCB", "ETC", "BanditQ"]
+pr_exclude = ["BanditQ", "ETC"]
 redraw = True
 # Experiments 1: study of the feasibility gap
 exp = "main_paper_exp1"
@@ -184,13 +246,13 @@ for feasibility_gap in [0, 0.1, 0.5, 0.9]:
         plot = load("plotting/data/%s_%s" % (exp, str(feasibility_gap)))
         do_plot(
             algos,
+            pr_exclude,
             plot,
             [0, 2],
             "./figures/%s_fairness_feasability_%f" % (exp, feasibility_gap),
             "./figures/%s_bandit_feasability_%f" % (exp, feasibility_gap),
             "./figures/%s_lb_feasability_%f" % (exp, feasibility_gap),
         )
-
 
 
 # Experiments 5: Reproducing bandit Q setting
@@ -210,6 +272,7 @@ for path in paths:
     plot = load("plotting/data/%s" % exp)
     do_plot(
         algos,
+        pr_exclude,
         plot,
         [0, 2],
         "./figures/%s_fairness" % (exp),
@@ -240,6 +303,7 @@ for path in paths:
     plot = load("plotting/data/%s" % exp)
     do_plot(
         algos,
+        pr_exclude,
         plot,
         [0, 2],
         "./figures/%s_fairness" % (exp),

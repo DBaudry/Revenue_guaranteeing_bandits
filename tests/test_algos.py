@@ -1,6 +1,6 @@
 # MAB experiment
 
-from fairbandits.algo import FairBandit, Fair, Bandit, greedy, ucb, lcb, mab_opt, mu_opt, kl_ucb, kl, kl_lcb, maxlog, LagrangeBwK
+from fairbandits.algo import FairBandit, Fair, Bandit, greedy, ucb, lcb, mab_opt, mu_opt, kl_ucb, kl, kl_lcb, maxlog, LagrangeBwK, FairnessBaseline
 from fairbandits.environment import mab_environment
 from joblib import Parallel, delayed
 import numpy as np
@@ -24,13 +24,30 @@ def do_exp(seed, lambdas, mus, T, mab_algo):
         k_t, r_t = mab_environment(p_t, mus, rng)
         mab_algo.update(k_t, r_t, p_t)
         cum_regret_t += np.sum((p_opt - p_t) * mus)
-        cum_fairness_t += np.max(lambdas - p_t * mus)
+        cum_fairness_t += lambdas - p_t * mus
         cum_deviation_t += np.abs(p_t - p_opt)
-        cum_regrets.append(cum_regret_t)
-        cum_fairness.append(cum_fairness_t)
+        cum_regrets.append(np.copy(cum_regret_t))
+        cum_fairness.append(np.copy(cum_fairness_t))
         abs_cum_deviation.append(np.copy(cum_deviation_t))
         iterations.append(t)
     return iterations, cum_fairness, cum_regrets, abs_cum_deviation, p_t
+
+def test_baseline():
+    seed = 5
+    lambdas = np.array([0.2, 0.1, 0.25])
+    mus = np.array([0.6, 0.7, 0.5])
+    K = len(lambdas)
+    T = int(1e3)
+    mab_algo = FairnessBaseline(lambdas)
+    _, cum_fairness, cum_regrets, abs_cum_deviation, p = do_exp(seed, lambdas, mus, T, mab_algo )
+
+    import matplotlib.pyplot as plt
+    plt.figure()
+    plt.plot(np.max(cum_fairness, axis=1), label="fairness")
+    plt.plot(cum_regrets, label="regret")
+    plt.legend()
+    plt.show()
+
 
 def test_lagrangian():
     T = 10000
