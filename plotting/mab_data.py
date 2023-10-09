@@ -100,7 +100,7 @@ def load_plotting(seeds, mus, lambdas, K, T, algos):
     return plot
 
 
-algos = ["greedy", "greedy-UCB", "KL-LCB-UCB", "KL-UCB", "KL-LCB", "ETC", "BanditQ"]
+algos = ["greedy", "greedy-UCB", "KL-LCB-UCB", "KL-UCB", "KL-LCB", "ETC", "BanditQ", "Baseline"]
 redraw = True
 # Experiments 1: study of the feasibility gap
 exp = "main_paper_exp1"
