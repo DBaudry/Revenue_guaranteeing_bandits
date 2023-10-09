@@ -49,7 +49,6 @@ class FairnessBaseline:
         lambdas = self.lambdas
         K = len(lambdas)
         surrogate = self.current_reward - lambdas * self.t
-        print(surrogate, self.current_reward, self.t)
         i_min = np.argmin(surrogate)
         if surrogate[i_min] < 0:
             p = np.zeros(K)
