@@ -84,9 +84,9 @@ def load_plotting(seeds, mus, lambdas, K, T, algos):
         pr_low_fairness = np.quantile(pr_cum_fairness, q=0.25, axis=0)
         pr_mean_fairness = np.mean(pr_cum_fairness, axis=0)
 
-        pr_high_fairness_sum = np.sum(pr_high_fairness, axis=1)
-        pr_low_fairness_sum = np.sum(pr_low_fairness, axis=1)
-        pr_mean_fairness_sum = np.sum(pr_mean_fairness, axis=1)
+        pr_high_fairness_sum = np.sum(np.maximum(pr_high_fairness, 0), axis=1)
+        pr_low_fairness_sum = np.sum(np.maximum(pr_low_fairness, 0), axis=1)
+        pr_mean_fairness_sum = np.sum(np.maximum(pr_mean_fairness, 0), axis=1)
 
         plot[algo] = (
             (high_fairness_max, low_fairness_max, mean_fairness_max),
@@ -100,7 +100,7 @@ def load_plotting(seeds, mus, lambdas, K, T, algos):
     return plot
 
 
-algos = ["greedy", "greedy-UCB", "KL-LCB-UCB", "KL-UCB", "KL-LCB", "ETC", "BanditQ", "Baseline"]
+algos = ["greedy", "greedy-UCB", "KL-LCB-UCB", "KL-UCB", "KL-LCB", "ETC", "BanditQ"]
 redraw = True
 # Experiments 1: study of the feasibility gap
 exp = "main_paper_exp1"
