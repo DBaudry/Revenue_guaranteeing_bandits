@@ -100,42 +100,42 @@ def load_plotting(seeds, mus, lambdas, K, T, algos):
     return plot
 
 
-algos = ["greedy", "greedy-UCB", "KL-LCB-UCB", "KL-UCB", "KL-LCB", "ETC", "BanditQ"]
-redraw = True
-# Experiments 1: study of the feasibility gap
-exp = "main_paper_exp1"
-print(exp)
-for feasibility_gap in [0, 0.1, 0.5, 0.9]:
-    mus = np.array([0.8, 0.9, 0.7])
-    K = len(mus)
-    paths = [
-        "./figures/%s_fairness_feasability_%f" % (exp, feasibility_gap),
-        "./figures/%s_bandit_feasability_%f" % (exp, feasibility_gap),
-        "./figures/%s_lb_feasability_%f" % (exp, feasibility_gap),
-    ]
-    cond = True
-    for path in paths:
-        cond = cond and os.path.exists(path + ".pdf") and os.path.exists(path + ".png") and (not redraw)
-    if  cond:
-        continue
-    plot = load_plotting(
-        seeds=200,
-        mus=mus,
-        lambdas=mus / len(mus) * (1 - feasibility_gap),
-        K=K,
-        T=100000,
-        algos=algos,
-    )
-    dump(plot, "plotting/data/%s_%s" % (exp, str(feasibility_gap)))
+algos = ["greedy", "greedy-UCB", "KL-LCB-UCB", "KL-UCB", "KL-LCB", "ETC", "BanditQ", "LagrangeBwK"]
+# redraw = True
+# # Experiments 1: study of the feasibility gap
+# exp = "main_paper_exp1"
+# print(exp)
+# for feasibility_gap in [0, 0.1, 0.5, 0.9]:
+#     mus = np.array([0.8, 0.9, 0.7])
+#     K = len(mus)
+#     paths = [
+#         "./figures/%s_fairness_feasability_%f" % (exp, feasibility_gap),
+#         "./figures/%s_bandit_feasability_%f" % (exp, feasibility_gap),
+#         "./figures/%s_lb_feasability_%f" % (exp, feasibility_gap),
+#     ]
+#     cond = True
+#     for path in paths:
+#         cond = cond and os.path.exists(path + ".pdf") and os.path.exists(path + ".png") and (not redraw)
+#     if  cond:
+#         continue
+#     plot = load_plotting(
+#         seeds=200,
+#         mus=mus,
+#         lambdas=mus / len(mus) * (1 - feasibility_gap),
+#         K=K,
+#         T=100000,
+#         algos=algos,
+#     )
+#     dump(plot, "plotting/data/%s_%s" % (exp, str(feasibility_gap)))
 
-    # do_plot(
-    #     algos,
-    #     plot,
-    #     [0, 2],
-    #     "./figures/%s_fairness_feasability_%f" % (exp, feasibility_gap),
-    #     "./figures/%s_bandit_feasability_%f" % (exp, feasibility_gap),
-    #     "./figures/%s_lb_feasability_%f" % (exp, feasibility_gap),
-    # )
+#     # do_plot(
+#     #     algos,
+#     #     plot,
+#     #     [0, 2],
+#     #     "./figures/%s_fairness_feasability_%f" % (exp, feasibility_gap),
+#     #     "./figures/%s_bandit_feasability_%f" % (exp, feasibility_gap),
+#     #     "./figures/%s_lb_feasability_%f" % (exp, feasibility_gap),
+#     # )
 
 
 
@@ -159,29 +159,29 @@ if  not cond:
     dump(plot, "plotting/data/%s" % exp)
 
 
-"""Experiments 6
-Very small mus except one
-"""
-exp = "main_paper_exp6"
-print(exp)
-T = 5000
-mus = np.array([0.8, 0.9, 0.7]) * 1 / np.sqrt(T)
-feasibility_gap = 0
-K = len(mus)
-lambdas = mus / len(mus) * (1 - feasibility_gap)
-mus[1] = mus[1] * np.sqrt(T)
+# """Experiments 6
+# Very small mus except one
+# """
+# exp = "main_paper_exp6"
+# print(exp)
+# T = 5000
+# mus = np.array([0.8, 0.9, 0.7]) * 1 / np.sqrt(T)
+# feasibility_gap = 0
+# K = len(mus)
+# lambdas = mus / len(mus) * (1 - feasibility_gap)
+# mus[1] = mus[1] * np.sqrt(T)
 
-paths = [
-    "./figures/%s_fairness" % (exp),
-    "./figures/%s_bandit" % (exp),
-    "./figures/%s_lb" % (exp),
-]
-cond = True
-for path in paths:
-    cond = cond and os.path.exists(path + ".pdf") and os.path.exists(path + ".png") and (not redraw)
-if  not cond:
-    plot = load_plotting(seeds=200, mus=mus, lambdas=lambdas, K=K, T=T, algos=algos)
-    dump(plot, "plotting/data/%s" % exp)
+# paths = [
+#     "./figures/%s_fairness" % (exp),
+#     "./figures/%s_bandit" % (exp),
+#     "./figures/%s_lb" % (exp),
+# ]
+# cond = True
+# for path in paths:
+#     cond = cond and os.path.exists(path + ".pdf") and os.path.exists(path + ".png") and (not redraw)
+# if  not cond:
+#     plot = load_plotting(seeds=200, mus=mus, lambdas=lambdas, K=K, T=T, algos=algos)
+#     dump(plot, "plotting/data/%s" % exp)
 
 
 # """Experiemnts 7
