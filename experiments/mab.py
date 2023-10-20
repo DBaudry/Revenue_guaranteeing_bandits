@@ -1,7 +1,7 @@
 # MAB experiment
 
 import numpy as np
-from fairbandits.algo import FairBandit, Fair, Bandit, greedy, kl_ucb, kl_lcb, mab_opt, ETC, ETCAnytime, BanditQ, FairnessBaseline
+from fairbandits.algo import FairBandit, Fair, Bandit, greedy, kl_ucb, kl_lcb, mab_opt, ETC, ETCAnytime, BanditQ,LagrangeBwK
 from fairbandits.environment import mab_environment
 from joblib import Parallel, delayed, dump
 import os
@@ -14,7 +14,7 @@ def do_exp(seed, lambdas, mus, T, name):
     rng = np.random.RandomState(seed)
 
     # For non anytime algos let's just record 10 points
-    if name in ["ETC", "BanditQ"]:
+    if name in ["ETC", "BanditQ", "LagrangeBwK"]:
         iterations = []
         cum_regrets = []
         pr_regrets = []
@@ -27,6 +27,8 @@ def do_exp(seed, lambdas, mus, T, name):
                 mab_algo = ETC(lambdas, R, lambdas/4, 1/6, 1/K*np.ones(K))
             elif name == "BanditQ":
                 mab_algo = BanditQ(lambdas, R)
+            elif name == "LagrangeBwK":
+                mab_algo = LagrangeBwK(lambdas, R)
             cum_regret_t = 0
             cum_fairness_t = np.zeros(len(lambdas))
             cum_deviation_t = 0
@@ -60,8 +62,6 @@ def do_exp(seed, lambdas, mus, T, name):
         mab_algo = FairBandit(Fair(lambdas, kl_ucb), Bandit(lambdas, kl_ucb))
     elif name == "KL-LCB":
         mab_algo = FairBandit(Fair(lambdas, kl_lcb), Bandit(lambdas, kl_ucb))
-    elif name == "Baseline":
-        mab_algo = FairnessBaseline(lambdas)
     else:
         raise ValueError("%s does not exists" % name)
 
@@ -98,36 +98,36 @@ def do_exp(seed, lambdas, mus, T, name):
 
 seeds = 200
 T = 100000
-algo_names = ["greedy","KL-UCB", "KL-LCB", "KL-LCB-UCB", "greedy-UCB", "ETC", "BanditQ", "Baseline"]
+algo_names = ["greedy","KL-UCB", "KL-LCB", "KL-LCB-UCB", "greedy-UCB", "ETC", "BanditQ", "LagrangeBwK"]
 
 """Experiments 1
 Different feasibility gaps lambdas proportional to mus
 """
-print("Experiment 1")
-for feasibility_gap in [0, 0.1, 0.5, 0.9]:
-    for algo_name in algo_names:
-        print(algo_name)
-        mus = np.array([0.8, 0.9, 0.7])
-        lambdas = mus / len(mus) * (1 - feasibility_gap)
-        K = len(lambdas)
-        path = "data/mab_%i_%s_%s_%s_%i_%i_exp1" % (
-            seeds,
-            "-".join(map(str, lambdas)),
-            "-".join(map(str, mus)),
-            algo_name,
-            K,
-            T,
-        )
-        if not os.path.exists(path):
-            res = Parallel(n_jobs=-1, verbose=True)(
-                    delayed(do_exp)(seed, lambdas, mus, T, algo_name)
-                    for seed in range(seeds)
-                )
-            dump(
-                [seeds, lambdas, mus, algo_name, K, T, res],
-                path,
-            )
-            del res
+# print("Experiment 1")
+# for feasibility_gap in [0, 0.1, 0.5, 0.9]:
+#     for algo_name in algo_names:
+#         print(algo_name)
+#         mus = np.array([0.8, 0.9, 0.7])
+#         lambdas = mus / len(mus) * (1 - feasibility_gap)
+#         K = len(lambdas)
+#         path = "data/mab_%i_%s_%s_%s_%i_%i_exp1" % (
+#             seeds,
+#             "-".join(map(str, lambdas)),
+#             "-".join(map(str, mus)),
+#             algo_name,
+#             K,
+#             T,
+#         )
+#         if not os.path.exists(path):
+#             res = Parallel(n_jobs=-1, verbose=True)(
+#                     delayed(do_exp)(seed, lambdas, mus, T, algo_name)
+#                     for seed in range(seeds)
+#                 )
+#             dump(
+#                 [seeds, lambdas, mus, algo_name, K, T, res],
+#                 path,
+#             )
+#             del res
 
 # # """Experiments 2
 # # Different feasibility gaps lambdas constant
@@ -249,37 +249,37 @@ for algo_name in algo_names:
 
 
 
-"""Experiments 6
-Very small mus except one
-"""
-T = 5000
-print("Experiment 6")
-for algo_name in algo_names:
-    print(algo_name)
-    mus = np.array([0.8, 0.9, 0.7]) * 1 / np.sqrt(T)
-    feasibility_gap = 0
-    K = len(mus)
-    lambdas = mus / len(mus) * (1 - feasibility_gap)
-    mus[1]  = mus[1] * np.sqrt(T)
-    path = "data/mab_%i_%s_%s_%s_%i_%i_exp6" % (
-        seeds,
-        "-".join(map(str, lambdas)),
-        "-".join(map(str, mus)),
-        algo_name,
-        K,
-        T,
-    )
-    if not os.path.exists(path):
-        res = Parallel(n_jobs=-1, verbose=True)(
-                delayed(do_exp)(seed, lambdas, mus, T, algo_name)
-                for seed in range(seeds)
-            )
+# """Experiments 6
+# Very small mus except one
+# """
+# T = 5000
+# print("Experiment 6")
+# for algo_name in algo_names:
+#     print(algo_name)
+#     mus = np.array([0.8, 0.9, 0.7]) * 1 / np.sqrt(T)
+#     feasibility_gap = 0
+#     K = len(mus)
+#     lambdas = mus / len(mus) * (1 - feasibility_gap)
+#     mus[1]  = mus[1] * np.sqrt(T)
+#     path = "data/mab_%i_%s_%s_%s_%i_%i_exp6" % (
+#         seeds,
+#         "-".join(map(str, lambdas)),
+#         "-".join(map(str, mus)),
+#         algo_name,
+#         K,
+#         T,
+#     )
+#     if not os.path.exists(path):
+#         res = Parallel(n_jobs=-1, verbose=True)(
+#                 delayed(do_exp)(seed, lambdas, mus, T, algo_name)
+#                 for seed in range(seeds)
+#             )
         
-        dump(
-            [seeds, lambdas, mus, algo_name, K, T, res],
-            path,
-        )
-        del res
+#         dump(
+#             [seeds, lambdas, mus, algo_name, K, T, res],
+#             path,
+#         )
+#         del res
 
 # """Experiemnts 7
 # A hard one feasibility gap is zero

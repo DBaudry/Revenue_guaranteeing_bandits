@@ -37,38 +37,6 @@ class LagrangeBwK:
         self.Wx[k] += gamma / (3 * K) * l / x[k]
         self.t += 1
 
-class FairnessBaseline:
-    def __init__(self, lambdas):
-        self.lambdas = lambdas
-        self.current_reward = np.zeros(len(lambdas))
-        self.t = 0
-        self.muhat = np.zeros_like(lambdas)  # Mean estimate
-        self.N = np.zeros_like(lambdas)
-
-    def play(self):
-        lambdas = self.lambdas
-        K = len(lambdas)
-        surrogate = self.current_reward - lambdas * self.t
-        i_min = np.argmin(surrogate)
-        if surrogate[i_min] < 0:
-            p = np.zeros(K)
-            p[i_min] = 1
-            return p
-        else:
-            p = np.zeros(K)
-            i = np.argmax(kl_ucb(self.t, self.N, self.muhat, self.lambdas))
-            p[i] = 1
-            return p
-
-    def update(self, k, r, x):
-        self.muhat[k] = (self.N[k] * self.muhat[k] + r) / (self.N[k] + 1)
-        self.N[k] = self.N[k] + 1
-        self.t += 1
-        self.current_reward[k] += r
-
-
-
-
 
 
 class BanditQ:
