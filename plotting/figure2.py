@@ -185,4 +185,4 @@ axes[3, 0].set_ylabel(r"$\rho_\lambda=0.9$")
 
 plt.subplots_adjust(wspace=0.1)
 plt.legend(ncols=5, loc="upper right", bbox_to_anchor=(0.6, 5.1))
-plt.savefig("../figures/figure3.pdf", bbox_inches="tight")
+plt.savefig("../figures/figure2.pdf", bbox_inches="tight")
