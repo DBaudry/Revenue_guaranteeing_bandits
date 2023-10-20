@@ -13,7 +13,7 @@ class LagrangeBwK:
         self.gamma = min(3 / 5, 2 * np.sqrt(3 / 5 * K * np.log(K) / T))
         self.alpha = 2 * np.sqrt(np.log(K * T**2))
         self.Wx = np.zeros(K)
-        self.Wrho = np.zeros(K)
+        self.Wrho = np.zeros(int(np.sum(lambdas != 0)))
         self.t = 0
         self.eta = np.sqrt(T / np.sqrt(K * T * np.log(K * T)))
 
@@ -23,16 +23,19 @@ class LagrangeBwK:
 
     def update(self, k, r, x):
         lambdas = self.lambdas
+        I = lambdas != 0
         gamma = self.gamma
         alpha = self.alpha
         T = self.T
         K = len(lambdas)
-        g = -np.ones(K)
-        g[k] = g[k] + r/lambdas[k]
-        g = g * np.min(lambdas)
-        self.Wrho -= np.sqrt(np.log(K) / T) * g
+        g = np.zeros(K)
+        g[I] -= 1
+        if lambdas[k] > 0:
+            g[k] = g[k] + r/lambdas[k]
+        g[I] = g[I] * np.min(lambdas[I])
+        self.Wrho -= np.sqrt(np.log(K) / T) * g[I]
         rho = exp_over_sum(self.Wrho)
-        l = (r + self.eta * rho.dot(g)) / (self.eta * np.sum(1 / lambdas - 1) + 1)
+        l = (r + self.eta * rho.dot(g[I])) / (self.eta * np.sum(1 / lambdas[I] - 1) + 1)
         self.Wx += gamma / (3 * K) * alpha / (x * np.sqrt(K * T))
         self.Wx[k] += gamma / (3 * K) * l / x[k]
         self.t += 1
