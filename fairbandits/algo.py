@@ -437,18 +437,8 @@ def kl_ucb(t, N, muhat, lambdas, precision=1e-6, c=0.01):
         if N[k] == 0:
             A[k] = 1
         else:
-            A[k] = dichotomy(muhat[k], 1, lambda x: kl(muhat[k], x), 6 * (1 + c) * np.log(t) / N[k])
+            A[k] = dichotomy(muhat[k], 1, lambda x: kl(muhat[k], x), 3 * (1 + c) * np.log(t) / N[k])
     return clip(A, lambdas)
-
-    return clip(
-        np.array(
-            [
-                dichotomy(muhat[k], 1, lambda x: kl(muhat[k], x), 6 * (1 + c) * np.log(t) / N[k])
-                for k in range(len(N))
-            ]
-        ),
-        lambdas,
-    )
 
 
 def kl_lcb(t, N, muhat, lambdas, precision=1e-6, c=0.01):
@@ -459,5 +449,5 @@ def kl_lcb(t, N, muhat, lambdas, precision=1e-6, c=0.01):
         if N[k] == 0:
             A[k] = 0
         else:
-            A[k] = dichotomy(0, muhat[k], lambda x: kl(muhat[k], x), 6 * (1 + c) * np.log(t) / N[k])
+            A[k] = dichotomy(0, muhat[k], lambda x: kl(muhat[k], x), 3 * (1 + c) * np.log(t) / N[k])
     return clip(A, lambdas)
