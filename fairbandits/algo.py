@@ -358,12 +358,12 @@ def clip(x, lambdas):
     return np.minimum(np.maximum(x, lambdas), 1)
 
 
-def ucb(t, N, muhat, lambdas):
-    return clip(muhat + np.sqrt(2 * np.log(t) / N), lambdas)
+def ucb(t, N, muhat, lambdas, c=0.01):
+    return clip(muhat + np.sqrt(6 * (1 + c) * np.log(t) / N), lambdas)
 
 
 def lcb(t, N, muhat, lambdas):
-    return clip(muhat - np.sqrt(2 * np.log(t) / N), lambdas)
+    return clip(muhat - np.sqrt(6 * (1 + c) * np.log(t) / N), lambdas)
 
 
 def mu_opt(mus):
@@ -429,7 +429,7 @@ def dichotomy(lower, upper, f, target, precision=1e-6):
         return lower
 
 
-def kl_ucb(t, N, muhat, lambdas, precision=1e-6):
+def kl_ucb(t, N, muhat, lambdas, precision=1e-6, c=0.01):
     """Solving kl(muhat, q) = 2 log(t)/N_k(t) for q greater than p"""
     K = len(N)
     A = np.zeros(K)
@@ -437,13 +437,13 @@ def kl_ucb(t, N, muhat, lambdas, precision=1e-6):
         if N[k] == 0:
             A[k] = 1
         else:
-            A[k] = dichotomy(muhat[k], 1, lambda x: kl(muhat[k], x), 2 * np.log(t) / N[k])
+            A[k] = dichotomy(muhat[k], 1, lambda x: kl(muhat[k], x), 6 * (1 + c) * np.log(t) / N[k])
     return clip(A, lambdas)
 
     return clip(
         np.array(
             [
-                dichotomy(muhat[k], 1, lambda x: kl(muhat[k], x), 2 * np.log(t) / N[k])
+                dichotomy(muhat[k], 1, lambda x: kl(muhat[k], x), 6 * (1 + c) * np.log(t) / N[k])
                 for k in range(len(N))
             ]
         ),
@@ -451,7 +451,7 @@ def kl_ucb(t, N, muhat, lambdas, precision=1e-6):
     )
 
 
-def kl_lcb(t, N, muhat, lambdas, precision=1e-6):
+def kl_lcb(t, N, muhat, lambdas, precision=1e-6, c=0.01):
     """Solving kl(muhat, q) = 2 log(t)/t for q greater than p"""
     K = len(N)
     A = np.zeros(K)
@@ -459,5 +459,5 @@ def kl_lcb(t, N, muhat, lambdas, precision=1e-6):
         if N[k] == 0:
             A[k] = 0
         else:
-            A[k] = dichotomy(0, muhat[k], lambda x: kl(muhat[k], x), 2 * np.log(t) / N[k])
+            A[k] = dichotomy(0, muhat[k], lambda x: kl(muhat[k], x), 6 * (1 + c) * np.log(t) / N[k])
     return clip(A, lambdas)
