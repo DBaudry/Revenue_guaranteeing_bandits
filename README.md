@@ -1,4 +1,6 @@
-# Fair bandits
+# Revenue-guaranteeing bandits
+
+This repo contains the code of the paper "Multi-Armed Bandits with Guaranteed Revenue per Arm", presented at the conference AISTATS 2024.
 
 ## Install
 All commands are to be run from the unzipped directory unless specified otherwise.
